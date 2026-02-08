@@ -6,6 +6,7 @@
     <title>미래 월급 테스트</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
     <style>
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
@@ -166,6 +167,13 @@
             word-break: keep-all; /* 단어 단위로 줄바꿈 */
             line-height: 1.4;
         }
+        #salary-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff; /* 파란색으로 강조 */
+            margin-top: 10px;
+        }
+
 
         /* 반응형 디자인 */
         @media (max-width: 600px) {
@@ -195,6 +203,9 @@
             #result-text {
                 font-size: 1.8em;
             }
+            #salary-amount {
+                font-size: 1.5em;
+            }
         }
     </style>
 </head>
@@ -223,6 +234,7 @@
         <button id="check-salary-button" disabled>월급 확인하기</button>
         <p id="loading-message">AI가 분석 중입니다... 🧐</p>
         <p id="result-text"></p>
+        <p id="salary-amount"></p> <!-- Add element for numerical salary -->
     </div>
 
     <script type="text/javascript">
@@ -243,6 +255,7 @@
         const checkSalaryButton = document.getElementById('check-salary-button');
         const loadingMessage = document.getElementById('loading-message');
         const resultText = document.getElementById('result-text');
+        const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
 
         let currentMode = 'upload'; // Initial mode
 
@@ -257,6 +270,53 @@
             // Initially ensure UI matches currentMode
             switchMode(currentMode);
         }
+
+        // --- Confetti Function ---
+        function triggerConfetti() {
+            const confettiEmojis = ['💸', '💰']; // Emojis for confetti
+            const defaults = {
+                spread: 360,
+                ticks: 50,
+                gravity: 0.5,
+                decay: 0.94,
+                startVelocity: 30,
+                colors: ['#FFD700', '#C0C0C0', '#DAA520', '#FFFFFF'] // Gold, Silver, Goldenrod, White
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(200 * particleRatio),
+                    shapes: ['emoji'],
+                    shapeOptions: {
+                        emoji: confettiEmojis
+                    }
+                }));
+            }
+
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+            });
+            fire(0.2, {
+                spread: 60,
+            });
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                scalar: 1.2
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+        }
+
 
         // --- Webcam Functions ---
         async function startWebcam() {
@@ -293,6 +353,7 @@
                 checkSalaryButton.disabled = false; // Enable button after taking photo
                 resultText.textContent = ''; // Clear previous result
                 loadingMessage.style.display = 'none'; // Hide loading message
+                salaryAmountDisplay.textContent = ''; // Clear previous salary amount
             } else {
                 alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
             }
@@ -302,6 +363,7 @@
         function switchMode(mode) {
             currentMode = mode;
             resultText.textContent = ''; // Clear result when switching modes
+            salaryAmountDisplay.textContent = ''; // Clear previous salary amount
             loadingMessage.style.display = 'none'; // Hide loading
             checkSalaryButton.disabled = true; // Disable until new image is ready
             imagePreview.style.display = 'none'; // Hide preview image initially
@@ -336,6 +398,7 @@
                     checkSalaryButton.disabled = false; // 이미지 업로드 후 버튼 활성화
                     resultText.textContent = ''; // 이전 결과 초기화
                     loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
+                    salaryAmountDisplay.textContent = ''; // Clear previous salary amount
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -343,6 +406,7 @@
                 checkSalaryButton.disabled = true;
                 resultText.textContent = '';
                 loadingMessage.style.display = 'none';
+                salaryAmountDisplay.textContent = '';
             }
         });
 
@@ -357,6 +421,7 @@
 
             loadingMessage.style.display = 'block'; // 로딩 메시지 표시
             resultText.textContent = ''; // 결과 텍스트 초기화
+            salaryAmountDisplay.textContent = ''; // Clear previous salary amount
             checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
@@ -368,12 +433,11 @@
             checkSalaryButton.disabled = false; // 버튼 다시 활성화
 
             let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
+            let salaryAmount = '';
             let highestProbability = 0;
             let predictedClass = '';
 
             for (let i = 0; i < maxPredictions; i++) {
-                // Assuming your Teachable Machine classes are named "Class 1", "Class 2", "Class 3" etc.
-                // If they are different (e.g., "부자", "중산층", "거지"), update this logic
                 if (prediction[i].probability.toFixed(2) > highestProbability) {
                     highestProbability = prediction[i].probability.toFixed(2);
                     predictedClass = prediction[i].className;
@@ -382,29 +446,30 @@
             
             switch (predictedClass) {
                 case "Class 1": // Assuming these are the actual class names from TM
-                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 최소 500억 예상!💰";
+                case "부자": // Or if your Teachable Machine model outputs "부자" directly
+                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 ";
+                    salaryAmount = "500억 원";
                     break;
                 case "Class 2":
-                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 1억은 기본, 승진은 덤!📈";
+                case "중산층":
+                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 ";
+                    salaryAmount = "1억 원";
                     break;
                 case "Class 3":
-                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 편의점 알바로도 월급 두둑!🍦";
-                    break;
-                // If your Teachable Machine model outputs "부자", "중산층", "거지" directly, use these:
-                case "부자":
-                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 최소 500억 예상!💰";
-                    break;
-                case "중산층":
-                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 1억은 기본, 승진은 덤!📈";
-                    break;
                 case "거지":
-                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 편의점 알바로도 월급 두둑!🍦";
+                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 연봉 ";
+                    salaryAmount = "2,400만 원"; // 월 200만원 * 12개월
                     break;
                 default:
                     resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
+                    salaryAmount = "";
             }
 
-            resultText.textContent = resultMessage;
+            resultText.innerHTML = resultMessage;
+            if (salaryAmount) {
+                salaryAmountDisplay.textContent = salaryAmount;
+                triggerConfetti(); // Trigger confetti when salary amount is displayed
+            }
         }
 
         init(); // 페이지 로드 시 모델 초기화
