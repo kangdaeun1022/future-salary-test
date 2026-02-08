@@ -129,7 +129,7 @@
             margin-top: 15px;
             display: none; /* 초기에는 숨김 */
         }
-        #check-salary-button {
+        #check-salary-button, #share-button { /* Apply similar styling to share button */
             background: linear-gradient(45deg, #007bff, #0056b3); /* 둥근 모서리의 파란색 그라데이션 */
             color: white;
             border: none;
@@ -143,7 +143,7 @@
             max-width: 300px;
             margin-top: 20px;
         }
-        #check-salary-button:hover {
+        #check-salary-button:hover, #share-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
@@ -193,7 +193,7 @@
                 padding: 10px 20px;
                 font-size: 1em;
             }
-            #check-salary-button {
+            #check-salary-button, #share-button {
                 padding: 12px 25px;
                 font-size: 1.1em;
                 width: 90%;
@@ -236,6 +236,7 @@
         <p id="loading-message">AI가 분석 중입니다... 🧐</p>
         <p id="result-text"></p>
         <p id="salary-amount"></p> <!-- Add element for numerical salary -->
+        <button id="share-button" style="display:none;">🔗 결과 공유하기</button> <!-- Share button -->
     </div>
 
     <script type="text/javascript">
@@ -257,6 +258,7 @@
         const loadingMessage = document.getElementById('loading-message');
         const resultText = document.getElementById('result-text');
         const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
+        const shareButton = document.getElementById('share-button'); // Share button element
 
         let currentMode = 'upload'; // Initial mode
 
@@ -355,6 +357,7 @@
                 resultText.textContent = ''; // Clear previous result
                 loadingMessage.style.display = 'none'; // Hide loading message
                 salaryAmountDisplay.textContent = ''; // Clear previous salary amount
+                shareButton.style.display = 'none'; // Hide share button
             } else {
                 alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
             }
@@ -368,6 +371,7 @@
             loadingMessage.style.display = 'none'; // Hide loading
             checkSalaryButton.disabled = true; // Disable until new image is ready
             imagePreview.style.display = 'none'; // Hide preview image initially
+            shareButton.style.display = 'none'; // Hide share button
 
             if (mode === 'upload') {
                 uploadSection.style.display = 'flex';
@@ -400,6 +404,7 @@
                     resultText.textContent = ''; // 이전 결과 초기화
                     loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
                     salaryAmountDisplay.textContent = ''; // Clear previous salary amount
+                    shareButton.style.display = 'none'; // Hide share button
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -408,6 +413,7 @@
                 resultText.textContent = '';
                 loadingMessage.style.display = 'none';
                 salaryAmountDisplay.textContent = '';
+                shareButton.style.display = 'none';
             }
         });
 
@@ -449,6 +455,7 @@
             loadingMessage.style.display = 'block'; // 로딩 메시지 표시
             resultText.textContent = ''; // 결과 텍스트 초기화
             salaryAmountDisplay.textContent = ''; // Clear previous salary amount
+            shareButton.style.display = 'none'; // Hide share button
             checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
@@ -474,17 +481,17 @@
             switch (predictedClass) {
                 case "Class 1": 
                 case "부자": 
-                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 ";
+                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 월급 ";
                     salaryAmountNum = getRandomInt(300_000_000_000, 1_000_000_000_000); // 3천억 ~ 1조
                     break;
                 case "Class 2":
                 case "중산층":
-                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 ";
+                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 미래 월급 ";
                     salaryAmountNum = getRandomInt(80_000_000, 300_000_000); // 8천만 ~ 3억
                     break;
                 case "Class 3":
                 case "거지":
-                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 연봉 ";
+                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 미래 월급 ";
                     salaryAmountNum = getRandomInt(20_000_000, 50_000_000); // 2천만 ~ 5천만
                     break;
                 default:
@@ -496,8 +503,35 @@
             if (salaryAmountNum > 0) {
                 salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
                 triggerConfetti(); // Trigger confetti when salary amount is displayed
+
+                // Show share button if Web Share API is supported
+                if (navigator.share) {
+                    shareButton.style.display = 'block';
+                }
             }
         }
+
+        // --- Share Button Logic ---
+        shareButton.addEventListener('click', async () => {
+            if (navigator.share) {
+                try {
+                    const shareData = {
+                        title: '미래 월급 테스트 결과',
+                        text: `${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
+                        url: window.location.href
+                    };
+                    await navigator.share(shareData);
+                    console.log('Share successful');
+                } catch (error) {
+                    console.error('Error sharing:', error);
+                    // User might have cancelled the share, or an error occurred
+                }
+            } else {
+                alert('이 브라우저에서는 공유하기 기능을 지원하지 않습니다.');
+                console.log('Web Share API not supported in this browser.');
+            }
+        });
+
 
         init(); // 페이지 로드 시 모델 초기화
     </script>
