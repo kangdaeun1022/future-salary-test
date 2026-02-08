@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background-color: #f8f8e7; /* 깔끔한 베이지톤 */
+            background-color: #f0f2f5; /* Toss app-like clean white/light gray tone */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,21 +22,22 @@
             text-align: center;
         }
         .container {
-            background-color: #ffffff;
+            background-color: #ffffff; /* Pure white container */
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 20px; /* Softer rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Lighter shadow */
             max-width: 500px;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 20px; /* Space between elements */
         }
         h1 {
-            color: #4a4a4a;
+            color: #333; /* Darker gray for contrast */
             margin-bottom: 15px;
-            font-size: 2em;
+            font-size: 2.5em; /* Larger title */
+            font-weight: 900; /* Extra bold */
         }
         .mode-buttons {
             display: flex;
@@ -44,7 +45,7 @@
             margin-bottom: 20px;
         }
         .mode-button {
-            background: #e0e0e0;
+            background: #f0f2f5; /* Light gray for inactive mode buttons */
             color: #555;
             border: none;
             border-radius: 20px;
@@ -54,7 +55,7 @@
             transition: all 0.2s ease;
         }
         .mode-button.active, .mode-button:hover {
-            background: linear-gradient(45deg, #007bff, #0056b3);
+            background: linear-gradient(45deg, #007bff, #0056b3); /* Blue gradient for active/hover */
             color: white;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
