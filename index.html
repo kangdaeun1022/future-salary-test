@@ -129,13 +129,9 @@
             border: 2px dashed #ddd;
             object-fit: contain;
             margin-top: 15px;
-            visibility: hidden; /* Use visibility instead of display for transition */
+            display: none; /* Controlled by JS, but hidden by default */
             opacity: 0; /* For transition */
-            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; /* Subtle transition */
-        }
-        #image-preview.show {
-            opacity: 1;
-            visibility: visible;
+            transition: opacity 0.5s ease-in-out; /* Subtle transition */
         }
 
         #check-salary-button, #share-button { /* Apply similar styling to share button */
@@ -415,8 +411,8 @@
                 context.drawImage(webcamView, 0, 0, webcamView.videoWidth, webcamView.videoHeight);
                 const imageData = webcamCanvas.toDataURL('image/png');
                 imagePreview.src = imageData;
-                imagePreview.style.visibility = 'visible'; // Show image
-                imagePreview.classList.add('show'); // Trigger transition
+                imagePreview.style.display = 'block'; // Use display: block
+                setTimeout(() => imagePreview.style.opacity = '1', 10); // Fade in
                 checkSalaryButton.disabled = false; // Enable button after taking photo
                 resetResults(); // Clear previous results and hide share/reset buttons
             } else {
@@ -437,8 +433,10 @@
         function resetTest() {
             resetResults();
             imagePreview.src = '#';
-            imagePreview.style.visibility = 'hidden'; // Hide image
-            imagePreview.classList.remove('show');
+            imagePreview.style.opacity = '0'; // Start fade out
+            setTimeout(() => { // Wait for fade out to complete before hiding
+                imagePreview.style.display = 'none'; 
+            }, 500); 
             checkSalaryButton.disabled = true;
             switchMode('upload'); // Go back to default upload mode
         }
@@ -450,8 +448,10 @@
             currentMode = mode;
             resetResults(); // Clear results and hide buttons
             checkSalaryButton.disabled = true; // Disable until new image is ready
-            imagePreview.style.visibility = 'hidden'; // Hide preview image initially
-            imagePreview.classList.remove('show'); // Remove show class
+            imagePreview.style.opacity = '0'; // Hide preview image initially
+            setTimeout(() => { // Wait for fade out to complete before hiding
+                imagePreview.style.display = 'none'; 
+            }, 500);
 
             if (mode === 'upload') {
                 uploadSection.style.display = 'flex';
@@ -479,16 +479,18 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
-                    imagePreview.style.visibility = 'visible'; // Show image
-                    imagePreview.classList.add('show'); // Trigger transition
+                    imagePreview.style.display = 'block'; // Use display: block
+                    setTimeout(() => imagePreview.style.opacity = '1', 10); // Fade in
                     checkSalaryButton.disabled = false; // Enable button after taking photo
                     resetResults(); // Clear previous results and hide share/reset buttons
                 };
                 reader.readAsDataURL(file);
             } else {
                 imagePreview.src = '#';
-                imagePreview.style.visibility = 'hidden';
-                imagePreview.classList.remove('show');
+                imagePreview.style.opacity = '0'; // Start fade out
+                setTimeout(() => { // Wait for fade out to complete before hiding
+                    imagePreview.style.display = 'none'; 
+                }, 500);
                 checkSalaryButton.disabled = true;
                 resetResults();
             }
@@ -524,7 +526,7 @@
         checkSalaryButton.addEventListener('click', predict);
 
         async function predict() {
-            if (!imagePreview.src || imagePreview.style.visibility === 'hidden') {
+            if (!imagePreview.src || imagePreview.style.display === 'none') { // Check display for prediction
                 alert("먼저 이미지를 업로드하거나 촬영해주세요!");
                 return;
             }
