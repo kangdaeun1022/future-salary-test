@@ -7,6 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
+    <!-- Kakao SDK -->
+    <script src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KkkjGTpZjjy3nu+IqnyijHuEJSCeNz8oJkDkyLSAaXD' crossorigin='anonymous'></script>
     <style>
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
@@ -174,7 +176,24 @@
             color: #007bff; /* 파란색으로 강조 */
             margin-top: 10px;
         }
-
+        #kakao-share-button {
+            background-color: #FEE500; /* Kakao yellow */
+            color: #3C1E1E; /* Dark brown for text */
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 10px; /* Closer to the web share button */
+        }
+        #kakao-share-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
 
         /* 반응형 디자인 */
         @media (max-width: 600px) {
@@ -193,7 +212,7 @@
                 padding: 10px 20px;
                 font-size: 1em;
             }
-            #check-salary-button, #share-button {
+            #check-salary-button, #share-button, #kakao-share-button {
                 padding: 12px 25px;
                 font-size: 1.1em;
                 width: 90%;
@@ -236,7 +255,8 @@
         <p id="loading-message">AI가 분석 중입니다... 🧐</p>
         <p id="result-text"></p>
         <p id="salary-amount"></p> <!-- Add element for numerical salary -->
-        <button id="share-button" style="display:none;">🔗 결과 공유하기</button> <!-- Share button -->
+        <button id="share-button" style="display:none;">🔗 결과 공유하기</button> <!-- Web Share button -->
+        <button id="kakao-share-button" style="display:none;">💬 카카오톡 공유하기</button> <!-- Kakao Share button -->
     </div>
 
     <script type="text/javascript">
@@ -258,9 +278,19 @@
         const loadingMessage = document.getElementById('loading-message');
         const resultText = document.getElementById('result-text');
         const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
-        const shareButton = document.getElementById('share-button'); // Share button element
+        const shareButton = document.getElementById('share-button'); // Web Share button element
+        const kakaoShareButton = document.getElementById('kakao-share-button'); // Kakao Share button element
 
         let currentMode = 'upload'; // Initial mode
+
+        // Initialize Kakao SDK
+        // Kakao.init should be called outside of async functions
+        // It needs to be called after the SDK script is loaded.
+        if (Kakao && !Kakao.isInitialized()) {
+            Kakao.init('a8a688950d80c0717441112920f31652');
+            console.log('Kakao SDK initialized:', Kakao.isInitialized());
+        }
+
 
         async function init() {
             const modelURL = URL + "model.json";
@@ -357,7 +387,8 @@
                 resultText.textContent = ''; // Clear previous result
                 loadingMessage.style.display = 'none'; // Hide loading message
                 salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-                shareButton.style.display = 'none'; // Hide share button
+                shareButton.style.display = 'none'; // Hide web share button
+                kakaoShareButton.style.display = 'none'; // Hide kakao share button
             } else {
                 alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
             }
@@ -371,7 +402,8 @@
             loadingMessage.style.display = 'none'; // Hide loading
             checkSalaryButton.disabled = true; // Disable until new image is ready
             imagePreview.style.display = 'none'; // Hide preview image initially
-            shareButton.style.display = 'none'; // Hide share button
+            shareButton.style.display = 'none'; // Hide web share button
+            kakaoShareButton.style.display = 'none'; // Hide kakao share button
 
             if (mode === 'upload') {
                 uploadSection.style.display = 'flex';
@@ -404,7 +436,8 @@
                     resultText.textContent = ''; // 이전 결과 초기화
                     loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
                     salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-                    shareButton.style.display = 'none'; // Hide share button
+                    shareButton.style.display = 'none'; // Hide web share button
+                    kakaoShareButton.style.display = 'none'; // Hide kakao share button
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -414,6 +447,7 @@
                 loadingMessage.style.display = 'none';
                 salaryAmountDisplay.textContent = '';
                 shareButton.style.display = 'none';
+                kakaoShareButton.style.display = 'none';
             }
         });
 
@@ -455,7 +489,8 @@
             loadingMessage.style.display = 'block'; // 로딩 메시지 표시
             resultText.textContent = ''; // 결과 텍스트 초기화
             salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-            shareButton.style.display = 'none'; // Hide share button
+            shareButton.style.display = 'none'; // Hide web share button
+            kakaoShareButton.style.display = 'none'; // Hide kakao share button
             checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
@@ -482,7 +517,7 @@
                 case "Class 1": 
                 case "부자": 
                     resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 월급 ";
-                    salaryAmountNum = getRandomInt(300_000_000_000, 1_000_000_000_000); // 3천억 ~ 1조
+                    salaryAmountNum = getRandomInt(30_000_000_000, 100_000_000_000); // 300억 ~ 1000억
                     break;
                 case "Class 2":
                 case "중산층":
@@ -504,14 +539,18 @@
                 salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
                 triggerConfetti(); // Trigger confetti when salary amount is displayed
 
-                // Show share button if Web Share API is supported
+                // Show web share button if Web Share API is supported
                 if (navigator.share) {
                     shareButton.style.display = 'block';
+                }
+                // Show Kakao share button if Kakao SDK is initialized
+                if (Kakao.isInitialized()) {
+                    kakaoShareButton.style.display = 'block';
                 }
             }
         }
 
-        // --- Share Button Logic ---
+        // --- Web Share Button Logic ---
         shareButton.addEventListener('click', async () => {
             if (navigator.share) {
                 try {
@@ -521,9 +560,9 @@
                         url: window.location.href
                     };
                     await navigator.share(shareData);
-                    console.log('Share successful');
+                    console.log('Web Share successful');
                 } catch (error) {
-                    console.error('Error sharing:', error);
+                    console.error('Error sharing via Web Share:', error);
                     // User might have cancelled the share, or an error occurred
                 }
             } else {
@@ -531,6 +570,37 @@
                 console.log('Web Share API not supported in this browser.');
             }
         });
+
+        // --- Kakao Share Function ---
+        function shareKakao() {
+            if (Kakao.isInitialized()) {
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '미래 월급 관상 테스트',
+                        description: `AI가 분석한 내 미래 월급은 ${resultText.textContent}${salaryAmountDisplay.textContent} ${window.location.href} 에서 나도 미래 월급을 확인해보세요!`,
+                        imageUrl: 'https://teachablemachine.withgoogle.com/assets/img/logo.svg', // Consider replacing with a more relevant image
+                        link: {
+                            mobileWebUrl: window.location.href,
+                            webUrl: window.location.href,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '웹으로 이동',
+                            link: {
+                                mobileWebUrl: window.location.href,
+                                webUrl: window.location.href,
+                            },
+                        },
+                    ],
+                });
+            } else {
+                alert('카카오 SDK가 초기화되지 않았습니다.');
+                console.error('Kakao SDK not initialized.');
+            }
+        }
+        kakaoShareButton.addEventListener('click', shareKakao);
 
 
         init(); // 페이지 로드 시 모델 초기화
