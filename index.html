@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미래 월급 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f8f8e7; /* 깔끔한 베이지톤 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+        .file-upload-wrapper {
+            width: 100%;
+            position: relative;
+        }
+        .file-upload-label {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #66BB6A); /* 초록색 계열로 변경 */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+        .file-upload-label:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        #image-upload {
+            display: none; /* 실제 파일 인풋 숨기기 */
+        }
+        #image-preview {
+            max-width: 100%;
+            max-height: 250px;
+            height: auto;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            object-fit: contain;
+            margin-top: 15px;
+            display: none; /* 초기에는 숨김 */
+        }
+        #check-salary-button {
+            background: linear-gradient(45deg, #007bff, #0056b3); /* 둥근 모서리의 파란색 그라데이션 */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+        #check-salary-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        #check-salary-button:disabled {
+            background: linear-gradient(45deg, #cccccc, #aaaaaa);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        #loading-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #555;
+            margin-top: 20px;
+            display: none; /* 초기에는 숨김 */
+        }
+        #result-text {
+            font-size: 2.2em; /* 아주 크고 굵게 강조 */
+            font-weight: 900; /* 더 굵게 */
+            color: #2c3e50;
+            margin-top: 30px;
+            word-break: keep-all; /* 단어 단위로 줄바꿈 */
+            line-height: 1.4;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .file-upload-label {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            #check-salary-button {
+                padding: 12px 25px;
+                font-size: 1.1em;
+                width: 90%;
+            }
+            #loading-message {
+                font-size: 1.3em;
+            }
+            #result-text {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>미래 월급 테스트 💰</h1>
+        <div class="file-upload-wrapper">
+            <label for="image-upload" class="file-upload-label">📸 사진 업로드하기</label>
+            <input type="file" id="image-upload" accept="image/*">
+        </div>
+        <img id="image-preview" src="#" alt="미리보기 이미지">
+        <button id="check-salary-button" disabled>월급 확인하기</button>
+        <p id="loading-message">AI가 분석 중입니다... 🧐</p>
+        <p id="result-text"></p>
+    </div>
+
+    <script type="text/javascript">
+        const URL = "https://teachablemachine.withgoogle.com/models/z_VsKynJ4/";
+        let model, maxPredictions;
+
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const checkSalaryButton = document.getElementById('check-salary-button');
+        const loadingMessage = document.getElementById('loading-message');
+        const resultText = document.getElementById('result-text');
+
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+            
+            // 모델 로드 완료 후 버튼 활성화 가능성 열어두기 (이미지 업로드 시 활성화)
+            console.log("Teachable Machine 모델 로드 완료!");
+        }
+
+        imageUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block'; // 미리보기 이미지 표시
+                    checkSalaryButton.disabled = false; // 이미지 업로드 후 버튼 활성화
+                    resultText.textContent = ''; // 이전 결과 초기화
+                    loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+                checkSalaryButton.disabled = true;
+                resultText.textContent = '';
+                loadingMessage.style.display = 'none';
+            }
+        });
+
+        checkSalaryButton.addEventListener('click', predict);
+
+        async function predict() {
+            if (!imagePreview.src || imagePreview.style.display === 'none') {
+                alert("먼저 이미지를 업로드해주세요!");
+                return;
+            }
+
+            loadingMessage.style.display = 'block'; // 로딩 메시지 표시
+            resultText.textContent = ''; // 결과 텍스트 초기화
+            checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
+
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+
+            const prediction = await model.predict(imagePreview, false); // false: webcam, true: image element
+            
+            loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
+            checkSalaryButton.disabled = false; // 버튼 다시 활성화
+
+            let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
+            let highestProbability = 0;
+            let predictedClass = '';
+
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability.toFixed(2) > highestProbability) {
+                    highestProbability = prediction[i].probability.toFixed(2);
+                    predictedClass = prediction[i].className;
+                }
+            }
+            
+            // 확률이 특정 임계값 이하면 불분명한 결과로 처리할 수도 있음 (선택 사항)
+            // if (highestProbability < 0.6) { // 예시 임계값
+            //     resultMessage = "사진이 불분명하여 정확한 분석이 어렵습니다. 😊";
+            // } else {
+                switch (predictedClass) {
+                    case "부자":
+                        resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 최소 500억 예상!💰";
+                        break;
+                    case "중산층":
+                        resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 1억은 기본, 승진은 덤!📈";
+                        break;
+                    case "거지":
+                        resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 편의점 알바로도 월급 두둑!🍦";
+                        break;
+                    default:
+                        resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
+                }
+            // }
+
+            resultText.textContent = resultMessage;
+        }
+
+        init(); // 페이지 로드 시 모델 초기화
+    </script>
+</body>
+</html>
