@@ -130,8 +130,14 @@
             object-fit: contain;
             margin-top: 15px;
             display: none; /* 초기에는 숨김 */
+            opacity: 0; /* For transition */
+            transition: opacity 0.5s ease-in-out; /* Subtle transition */
         }
-        #check-salary-button, #share-button { /* Apply similar styling to share button */
+        #image-preview.show {
+            opacity: 1;
+        }
+
+        #check-salary-button, #share-button, #kakao-share-button, #reset-button { /* Apply similar styling to all action buttons */
             background: linear-gradient(45deg, #007bff, #0056b3); /* 둥근 모서리의 파란색 그라데이션 */
             color: white;
             border: none;
@@ -145,7 +151,12 @@
             max-width: 300px;
             margin-top: 20px;
         }
-        #check-salary-button:hover, #share-button:hover {
+        #kakao-share-button {
+            background-color: #FEE500; /* Kakao yellow */
+            color: #3C1E1E; /* Dark brown for text */
+            margin-top: 10px; /* Closer to the web share button */
+        }
+        #check-salary-button:hover, #share-button:hover, #kakao-share-button:hover, #reset-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
@@ -155,13 +166,32 @@
             box-shadow: none;
             transform: none;
         }
+        
         #loading-message {
             font-size: 1.5em;
             font-weight: bold;
             color: #555;
             margin-top: 20px;
-            display: none; /* 초기에는 숨김 */
+            display: flex; /* Changed to flex to center spinner */
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
+        /* CSS Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #007bff; /* Blue */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         #result-text {
             font-size: 2.2em; /* 아주 크고 굵게 강조 */
             font-weight: 900; /* 더 굵게 */
@@ -176,24 +206,7 @@
             color: #007bff; /* 파란색으로 강조 */
             margin-top: 10px;
         }
-        #kakao-share-button {
-            background-color: #FEE500; /* Kakao yellow */
-            color: #3C1E1E; /* Dark brown for text */
-            border: none;
-            border-radius: 25px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 300px;
-            margin-top: 10px; /* Closer to the web share button */
-        }
-        #kakao-share-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
+
 
         /* 반응형 디자인 */
         @media (max-width: 600px) {
@@ -212,7 +225,7 @@
                 padding: 10px 20px;
                 font-size: 1em;
             }
-            #check-salary-button, #share-button, #kakao-share-button {
+            #check-salary-button, #share-button, #kakao-share-button, #reset-button {
                 padding: 12px 25px;
                 font-size: 1.1em;
                 width: 90%;
@@ -252,11 +265,15 @@
         
         <img id="image-preview" src="#" alt="미리보기 이미지">
         <button id="check-salary-button" disabled>월급 확인하기</button>
-        <p id="loading-message">AI가 분석 중입니다... 🧐</p>
+        <!-- Loading message with spinner -->
+        <p id="loading-message" style="display: none;">
+            <span class="spinner"></span> AI가 분석 중입니다...
+        </p>
         <p id="result-text"></p>
         <p id="salary-amount"></p> <!-- Add element for numerical salary -->
         <button id="share-button" style="display:none;">🔗 결과 공유하기</button> <!-- Web Share button -->
         <button id="kakao-share-button" style="display:none;">💬 카카오톡 공유하기</button> <!-- Kakao Share button -->
+        <button id="reset-button" style="display:none;">🔄 다시하기</button> <!-- Reset button -->
     </div>
 
     <script type="text/javascript">
@@ -280,6 +297,7 @@
         const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
         const shareButton = document.getElementById('share-button'); // Web Share button element
         const kakaoShareButton = document.getElementById('kakao-share-button'); // Kakao Share button element
+        const resetButton = document.getElementById('reset-button'); // Reset button element
 
         let currentMode = 'upload'; // Initial mode
 
@@ -383,27 +401,43 @@
                 const imageData = webcamCanvas.toDataURL('image/png');
                 imagePreview.src = imageData;
                 imagePreview.style.display = 'block';
+                imagePreview.classList.add('show'); // Trigger transition
                 checkSalaryButton.disabled = false; // Enable button after taking photo
-                resultText.textContent = ''; // Clear previous result
-                loadingMessage.style.display = 'none'; // Hide loading message
-                salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-                shareButton.style.display = 'none'; // Hide web share button
-                kakaoShareButton.style.display = 'none'; // Hide kakao share button
+                resetResults(); // Clear previous results and hide share/reset buttons
             } else {
                 alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
             }
         });
 
+        // --- Reset Function ---
+        function resetResults() {
+            resultText.textContent = '';
+            salaryAmountDisplay.textContent = '';
+            loadingMessage.style.display = 'none';
+            shareButton.style.display = 'none';
+            kakaoShareButton.style.display = 'none';
+            resetButton.style.display = 'none'; // Hide reset button
+        }
+        
+        function resetTest() {
+            resetResults();
+            imagePreview.src = '#';
+            imagePreview.style.display = 'none';
+            imagePreview.classList.remove('show');
+            checkSalaryButton.disabled = true;
+            // Optionally switch to upload mode and stop webcam
+            switchMode('upload'); 
+        }
+        resetButton.addEventListener('click', resetTest);
+
+
         // --- Mode Switching Logic ---
         function switchMode(mode) {
             currentMode = mode;
-            resultText.textContent = ''; // Clear result when switching modes
-            salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-            loadingMessage.style.display = 'none'; // Hide loading
+            resetResults(); // Clear results and hide buttons
             checkSalaryButton.disabled = true; // Disable until new image is ready
             imagePreview.style.display = 'none'; // Hide preview image initially
-            shareButton.style.display = 'none'; // Hide web share button
-            kakaoShareButton.style.display = 'none'; // Hide kakao share button
+            imagePreview.classList.remove('show'); // Remove show class
 
             if (mode === 'upload') {
                 uploadSection.style.display = 'flex';
@@ -432,22 +466,16 @@
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
                     imagePreview.style.display = 'block'; // 미리보기 이미지 표시
+                    imagePreview.classList.add('show'); // Trigger transition
                     checkSalaryButton.disabled = false; // 이미지 업로드 후 버튼 활성화
-                    resultText.textContent = ''; // 이전 결과 초기화
-                    loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
-                    salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-                    shareButton.style.display = 'none'; // Hide web share button
-                    kakaoShareButton.style.display = 'none'; // Hide kakao share button
+                    resetResults(); // Clear previous results and hide share/reset buttons
                 };
                 reader.readAsDataURL(file);
             } else {
                 imagePreview.style.display = 'none';
+                imagePreview.classList.remove('show');
                 checkSalaryButton.disabled = true;
-                resultText.textContent = '';
-                loadingMessage.style.display = 'none';
-                salaryAmountDisplay.textContent = '';
-                shareButton.style.display = 'none';
-                kakaoShareButton.style.display = 'none';
+                resetResults();
             }
         });
 
@@ -486,11 +514,8 @@
                 return;
             }
 
-            loadingMessage.style.display = 'block'; // 로딩 메시지 표시
-            resultText.textContent = ''; // 결과 텍스트 초기화
-            salaryAmountDisplay.textContent = ''; // Clear previous salary amount
-            shareButton.style.display = 'none'; // Hide web share button
-            kakaoShareButton.style.display = 'none'; // Hide kakao share button
+            loadingMessage.style.display = 'flex'; // Show loading message with spinner
+            resetResults(); // Clear previous results and hide share/reset buttons
             checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
@@ -498,7 +523,7 @@
             // Use imagePreview directly for prediction
             const prediction = await model.predict(imagePreview);
             
-            loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
+            loadingMessage.style.display = 'none'; // Hide loading message
             checkSalaryButton.disabled = false; // 버튼 다시 활성화
 
             let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
@@ -539,14 +564,14 @@
                 salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
                 triggerConfetti(); // Trigger confetti when salary amount is displayed
 
-                // Show web share button if Web Share API is supported
+                // Show share buttons if available
                 if (navigator.share) {
                     shareButton.style.display = 'block';
                 }
-                // Show Kakao share button if Kakao SDK is initialized
                 if (Kakao.isInitialized()) {
                     kakaoShareButton.style.display = 'block';
                 }
+                resetButton.style.display = 'block'; // Show reset button after result
             }
         }
 
