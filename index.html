@@ -129,15 +129,16 @@
             border: 2px dashed #ddd;
             object-fit: contain;
             margin-top: 15px;
-            display: none; /* 초기에는 숨김 */
+            visibility: hidden; /* Use visibility instead of display for transition */
             opacity: 0; /* For transition */
-            transition: opacity 0.5s ease-in-out; /* Subtle transition */
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; /* Subtle transition */
         }
         #image-preview.show {
             opacity: 1;
+            visibility: visible;
         }
 
-        #check-salary-button, #share-button, #kakao-share-button, #reset-button { /* Apply similar styling to all action buttons */
+        #check-salary-button, #share-button { /* Apply similar styling to share button */
             background: linear-gradient(45deg, #007bff, #0056b3); /* 둥근 모서리의 파란색 그라데이션 */
             color: white;
             border: none;
@@ -151,10 +152,22 @@
             max-width: 300px;
             margin-top: 20px;
         }
-        #kakao-share-button {
+        #kakao-share-button, #reset-button { /* Group these for consistent styling below */
             background-color: #FEE500; /* Kakao yellow */
             color: #3C1E1E; /* Dark brown for text */
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
             margin-top: 10px; /* Closer to the web share button */
+        }
+        #share-button {
+            margin-top: 20px; /* Ensure spacing if both share buttons are present */
         }
         #check-salary-button:hover, #share-button:hover, #kakao-share-button:hover, #reset-button:hover {
             transform: translateY(-3px);
@@ -176,6 +189,8 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
+            /* Important: Default display is none, JS will toggle to flex */
+            display: none; 
         }
         /* CSS Spinner */
         .spinner {
@@ -266,7 +281,7 @@
         <img id="image-preview" src="#" alt="미리보기 이미지">
         <button id="check-salary-button" disabled>월급 확인하기</button>
         <!-- Loading message with spinner -->
-        <p id="loading-message" style="display: none;">
+        <p id="loading-message">
             <span class="spinner"></span> AI가 분석 중입니다...
         </p>
         <p id="result-text"></p>
@@ -400,7 +415,7 @@
                 context.drawImage(webcamView, 0, 0, webcamView.videoWidth, webcamView.videoHeight);
                 const imageData = webcamCanvas.toDataURL('image/png');
                 imagePreview.src = imageData;
-                imagePreview.style.display = 'block';
+                imagePreview.style.visibility = 'visible'; // Show image
                 imagePreview.classList.add('show'); // Trigger transition
                 checkSalaryButton.disabled = false; // Enable button after taking photo
                 resetResults(); // Clear previous results and hide share/reset buttons
@@ -413,7 +428,7 @@
         function resetResults() {
             resultText.textContent = '';
             salaryAmountDisplay.textContent = '';
-            loadingMessage.style.display = 'none';
+            loadingMessage.style.display = 'none'; // Hide spinner
             shareButton.style.display = 'none';
             kakaoShareButton.style.display = 'none';
             resetButton.style.display = 'none'; // Hide reset button
@@ -422,11 +437,10 @@
         function resetTest() {
             resetResults();
             imagePreview.src = '#';
-            imagePreview.style.display = 'none';
+            imagePreview.style.visibility = 'hidden'; // Hide image
             imagePreview.classList.remove('show');
             checkSalaryButton.disabled = true;
-            // Optionally switch to upload mode and stop webcam
-            switchMode('upload'); 
+            switchMode('upload'); // Go back to default upload mode
         }
         resetButton.addEventListener('click', resetTest);
 
@@ -436,7 +450,7 @@
             currentMode = mode;
             resetResults(); // Clear results and hide buttons
             checkSalaryButton.disabled = true; // Disable until new image is ready
-            imagePreview.style.display = 'none'; // Hide preview image initially
+            imagePreview.style.visibility = 'hidden'; // Hide preview image initially
             imagePreview.classList.remove('show'); // Remove show class
 
             if (mode === 'upload') {
@@ -465,14 +479,15 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block'; // 미리보기 이미지 표시
+                    imagePreview.style.visibility = 'visible'; // Show image
                     imagePreview.classList.add('show'); // Trigger transition
-                    checkSalaryButton.disabled = false; // 이미지 업로드 후 버튼 활성화
+                    checkSalaryButton.disabled = false; // Enable button after taking photo
                     resetResults(); // Clear previous results and hide share/reset buttons
                 };
                 reader.readAsDataURL(file);
             } else {
-                imagePreview.style.display = 'none';
+                imagePreview.src = '#';
+                imagePreview.style.visibility = 'hidden';
                 imagePreview.classList.remove('show');
                 checkSalaryButton.disabled = true;
                 resetResults();
@@ -509,13 +524,13 @@
         checkSalaryButton.addEventListener('click', predict);
 
         async function predict() {
-            if (!imagePreview.src || imagePreview.style.display === 'none') {
+            if (!imagePreview.src || imagePreview.style.visibility === 'hidden') {
                 alert("먼저 이미지를 업로드하거나 촬영해주세요!");
                 return;
             }
 
             loadingMessage.style.display = 'flex'; // Show loading message with spinner
-            resetResults(); // Clear previous results and hide share/reset buttons
+            resetResults(); // Clear previous results and hide share/reset buttons (except loading itself)
             checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
