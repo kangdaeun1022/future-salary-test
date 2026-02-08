@@ -34,16 +34,46 @@
         }
         h1 {
             color: #4a4a4a;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             font-size: 2em;
         }
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mode-button {
+            background: #e0e0e0;
+            color: #555;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mode-button.active, .mode-button:hover {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* File Upload Styles */
         .file-upload-wrapper {
             width: 100%;
             position: relative;
         }
         .file-upload-label {
             display: inline-block;
-            background: linear-gradient(45deg, #4CAF50, #66BB6A); /* 초록색 계열로 변경 */
+            background: linear-gradient(45deg, #4CAF50, #66BB6A); /* 초록색 계열 */
             color: white;
             padding: 12px 25px;
             border-radius: 25px;
@@ -51,7 +81,6 @@
             font-size: 1.1em;
             transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            margin-bottom: 15px;
         }
         .file-upload-label:hover {
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
@@ -60,6 +89,34 @@
         #image-upload {
             display: none; /* 실제 파일 인풋 숨기기 */
         }
+
+        /* Webcam Styles */
+        #webcam-view {
+            width: 100%;
+            max-width: 400px; /* Adjust max-width for webcam */
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            display: none; /* Hidden by default */
+        }
+        #webcam-button {
+            background: linear-gradient(45deg, #FFC107, #FFA000); /* 주황색 계열 */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 250px;
+            display: none; /* Hidden by default */
+        }
+        #webcam-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
         #image-preview {
             max-width: 100%;
             max-height: 250px;
@@ -119,7 +176,11 @@
             h1 {
                 font-size: 1.8em;
             }
-            .file-upload-label {
+            .mode-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            .file-upload-label, #webcam-button {
                 padding: 10px 20px;
                 font-size: 1em;
             }
@@ -140,10 +201,24 @@
 <body>
     <div class="container">
         <h1>미래 월급 테스트 💰</h1>
-        <div class="file-upload-wrapper">
-            <label for="image-upload" class="file-upload-label">📸 사진 업로드하기</label>
-            <input type="file" id="image-upload" accept="image/*">
+        <div class="mode-buttons">
+            <button id="upload-mode-btn" class="mode-button active">📸 사진 업로드</button>
+            <button id="webcam-mode-btn" class="mode-button">📷 카메라로 찍기</button>
         </div>
+
+        <div id="upload-section" class="input-section">
+            <div class="file-upload-wrapper">
+                <label for="image-upload" class="file-upload-label">파일 선택</label>
+                <input type="file" id="image-upload" accept="image/*">
+            </div>
+        </div>
+
+        <div id="webcam-section" class="input-section" style="display: none;">
+            <video id="webcam-view" playsinline autoplay></video>
+            <button id="webcam-button">셀카 찍기</button>
+            <canvas id="webcam-canvas" style="display: none;"></canvas>
+        </div>
+        
         <img id="image-preview" src="#" alt="미리보기 이미지">
         <button id="check-salary-button" disabled>월급 확인하기</button>
         <p id="loading-message">AI가 분석 중입니다... 🧐</p>
@@ -153,12 +228,23 @@
     <script type="text/javascript">
         const URL = "https://teachablemachine.withgoogle.com/models/z_VsKynJ4/";
         let model, maxPredictions;
+        let webcamStream = null; // To store webcam stream
 
+        // DOM elements
+        const uploadModeBtn = document.getElementById('upload-mode-btn');
+        const webcamModeBtn = document.getElementById('webcam-mode-btn');
+        const uploadSection = document.getElementById('upload-section');
+        const webcamSection = document.getElementById('webcam-section');
         const imageUpload = document.getElementById('image-upload');
         const imagePreview = document.getElementById('image-preview');
+        const webcamView = document.getElementById('webcam-view');
+        const webcamCanvas = document.getElementById('webcam-canvas');
+        const webcamButton = document.getElementById('webcam-button');
         const checkSalaryButton = document.getElementById('check-salary-button');
         const loadingMessage = document.getElementById('loading-message');
         const resultText = document.getElementById('result-text');
+
+        let currentMode = 'upload'; // Initial mode
 
         async function init() {
             const modelURL = URL + "model.json";
@@ -167,10 +253,79 @@
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
             
-            // 모델 로드 완료 후 버튼 활성화 가능성 열어두기 (이미지 업로드 시 활성화)
             console.log("Teachable Machine 모델 로드 완료!");
+            // Initially ensure UI matches currentMode
+            switchMode(currentMode);
         }
 
+        // --- Webcam Functions ---
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                webcamView.srcObject = stream;
+                webcamStream = stream; // Store stream to stop it later
+                webcamButton.style.display = 'block'; // Show take selfie button
+            } catch (err) {
+                console.error("Webcam access denied or error: ", err);
+                alert("카메라 접근을 허용해주세요. 또는 다른 모드를 이용해주세요. 오류: " + err.message);
+                webcamButton.style.display = 'none'; // Hide take selfie button on error
+            }
+        }
+
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamView.srcObject = null;
+                webcamStream = null;
+                webcamButton.style.display = 'none'; // Hide take selfie button
+            }
+        }
+
+        webcamButton.addEventListener('click', function() {
+            if (webcamView.srcObject) {
+                const context = webcamCanvas.getContext('2d');
+                webcamCanvas.width = webcamView.videoWidth;
+                webcamCanvas.height = webcamView.videoHeight;
+                context.drawImage(webcamView, 0, 0, webcamView.videoWidth, webcamView.videoHeight);
+                const imageData = webcamCanvas.toDataURL('image/png');
+                imagePreview.src = imageData;
+                imagePreview.style.display = 'block';
+                checkSalaryButton.disabled = false; // Enable button after taking photo
+                resultText.textContent = ''; // Clear previous result
+                loadingMessage.style.display = 'none'; // Hide loading message
+            } else {
+                alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
+            }
+        });
+
+        // --- Mode Switching Logic ---
+        function switchMode(mode) {
+            currentMode = mode;
+            resultText.textContent = ''; // Clear result when switching modes
+            loadingMessage.style.display = 'none'; // Hide loading
+            checkSalaryButton.disabled = true; // Disable until new image is ready
+            imagePreview.style.display = 'none'; // Hide preview image initially
+
+            if (mode === 'upload') {
+                uploadSection.style.display = 'flex';
+                webcamSection.style.display = 'none';
+                uploadModeBtn.classList.add('active');
+                webcamModeBtn.classList.remove('active');
+                stopWebcam(); // Stop webcam if switching from webcam mode
+            } else if (mode === 'webcam') {
+                uploadSection.style.display = 'none';
+                webcamSection.style.display = 'flex';
+                uploadModeBtn.classList.remove('active');
+                webcamModeBtn.classList.add('active');
+                startWebcam(); // Start webcam if switching to webcam mode
+            }
+        }
+
+        uploadModeBtn.addEventListener('click', () => switchMode('upload'));
+        webcamModeBtn.addEventListener('click', () => switchMode('webcam'));
+
+
+        // --- Image Upload Logic ---
         imageUpload.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -191,11 +346,12 @@
             }
         });
 
+        // --- Prediction Logic ---
         checkSalaryButton.addEventListener('click', predict);
 
         async function predict() {
             if (!imagePreview.src || imagePreview.style.display === 'none') {
-                alert("먼저 이미지를 업로드해주세요!");
+                alert("먼저 이미지를 업로드하거나 촬영해주세요!");
                 return;
             }
 
@@ -205,7 +361,8 @@
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
 
-            const prediction = await model.predict(imagePreview, false); // false: webcam, true: image element
+            // Use imagePreview directly for prediction
+            const prediction = await model.predict(imagePreview);
             
             loadingMessage.style.display = 'none'; // 로딩 메시지 숨기기
             checkSalaryButton.disabled = false; // 버튼 다시 활성화
@@ -215,30 +372,37 @@
             let predictedClass = '';
 
             for (let i = 0; i < maxPredictions; i++) {
+                // Assuming your Teachable Machine classes are named "Class 1", "Class 2", "Class 3" etc.
+                // If they are different (e.g., "부자", "중산층", "거지"), update this logic
                 if (prediction[i].probability.toFixed(2) > highestProbability) {
                     highestProbability = prediction[i].probability.toFixed(2);
                     predictedClass = prediction[i].className;
                 }
             }
             
-            // 확률이 특정 임계값 이하면 불분명한 결과로 처리할 수도 있음 (선택 사항)
-            // if (highestProbability < 0.6) { // 예시 임계값
-            //     resultMessage = "사진이 불분명하여 정확한 분석이 어렵습니다. 😊";
-            // } else {
-                switch (predictedClass) {
-                    case "부자":
-                        resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 최소 500억 예상!💰";
-                        break;
-                    case "중산층":
-                        resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 1억은 기본, 승진은 덤!📈";
-                        break;
-                    case "거지":
-                        resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 편의점 알바로도 월급 두둑!🍦";
-                        break;
-                    default:
-                        resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
-                }
-            // }
+            switch (predictedClass) {
+                case "Class 1": // Assuming these are the actual class names from TM
+                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 최소 500억 예상!💰";
+                    break;
+                case "Class 2":
+                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 1억은 기본, 승진은 덤!📈";
+                    break;
+                case "Class 3":
+                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 편의점 알바로도 월급 두둑!🍦";
+                    break;
+                // If your Teachable Machine model outputs "부자", "중산층", "거지" directly, use these:
+                case "부자":
+                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 최소 500억 예상!💰";
+                    break;
+                case "중산층":
+                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 1억은 기본, 승진은 덤!📈";
+                    break;
+                case "거지":
+                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 편의점 알바로도 월급 두둑!🍦";
+                    break;
+                default:
+                    resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
+            }
 
             resultText.textContent = resultMessage;
         }
