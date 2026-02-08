@@ -411,6 +411,32 @@
             }
         });
 
+        // --- Utility for Random Numbers ---
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // --- Utility for Korean Won Formatting ---
+        function formatKoreanWon(amount) {
+            if (amount >= 100000000) { // 억 단위
+                const uk = Math.floor(amount / 100000000);
+                const man = Math.floor((amount % 100000000) / 10000);
+                let result = `${uk}억`;
+                if (man > 0) {
+                    result += ` ${man}만`;
+                }
+                return result + ' 원';
+            } else if (amount >= 10000) { // 만 단위
+                const man = Math.floor(amount / 10000);
+                return `${man}만 원`;
+            } else { // 천 원 단위 이하
+                return amount.toLocaleString() + ' 원';
+            }
+        }
+
+
         // --- Prediction Logic ---
         checkSalaryButton.addEventListener('click', predict);
 
@@ -434,7 +460,7 @@
             checkSalaryButton.disabled = false; // 버튼 다시 활성화
 
             let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
-            let salaryAmount = '';
+            let salaryAmountNum = 0; // Raw numerical amount
             let highestProbability = 0;
             let predictedClass = '';
 
@@ -446,29 +472,29 @@
             }
             
             switch (predictedClass) {
-                case "Class 1": // Assuming these are the actual class names from TM
-                case "부자": // Or if your Teachable Machine model outputs "부자" directly
+                case "Class 1": 
+                case "부자": 
                     resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 자산 ";
-                    salaryAmount = "500억 원";
+                    salaryAmountNum = getRandomInt(300_000_000_000, 1_000_000_000_000); // 3천억 ~ 1조
                     break;
                 case "Class 2":
                 case "중산층":
                     resultMessage = "🚀능력 만렙 실력파 직장인 관상! 연봉 ";
-                    salaryAmount = "1억 원";
+                    salaryAmountNum = getRandomInt(80_000_000, 300_000_000); // 8천만 ~ 3억
                     break;
                 case "Class 3":
                 case "거지":
                     resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 연봉 ";
-                    salaryAmount = "2,400만 원"; // 월 200만원 * 12개월
+                    salaryAmountNum = getRandomInt(20_000_000, 50_000_000); // 2천만 ~ 5천만
                     break;
                 default:
                     resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
-                    salaryAmount = "";
+                    salaryAmountNum = 0;
             }
 
             resultText.innerHTML = resultMessage;
-            if (salaryAmount) {
-                salaryAmountDisplay.textContent = salaryAmount;
+            if (salaryAmountNum > 0) {
+                salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
                 triggerConfetti(); // Trigger confetti when salary amount is displayed
             }
         }
