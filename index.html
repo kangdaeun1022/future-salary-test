@@ -14,20 +14,21 @@
     <!-- Kakao SDK -->
     <script src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KxjrFjzHa5TAoFQ6GbYTCAG0bjM55XohjjDT7tDDC01' crossorigin='anonymous'></script>
     <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 60px; /* Offset for fixed header height */
+        }
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
             background-color: #f0f2f5; /* Toss app-like clean white/light gray tone */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 0; /* Reset default padding */
             box-sizing: border-box;
             color: #333;
             text-align: center;
         }
-        .container {
+        /* The main content container */
+        #home-section {
             background-color: #ffffff; /* Pure white container */
             padding: 30px;
             border-radius: 20px; /* Softer rounded corners */
@@ -38,7 +39,206 @@
             flex-direction: column;
             align-items: center;
             gap: 20px; /* Space between elements */
+            margin: 0 auto; /* Center the container itself */
+            margin-top: 60px; /* Push content down to clear fixed header */
         }
+        h1 {
+            color: #333; /* Darker gray for contrast */
+            margin-bottom: 15px;
+            font-size: 2.5em; /* Larger title */
+            font-weight: 900; /* Extra bold */
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mode-button {
+            background: #f0f2f5; /* Light gray for inactive mode buttons */
+            color: #555;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mode-button.active, .mode-button:hover {
+            background: linear-gradient(45deg, #007bff, #0056b3); /* Blue gradient for active/hover */
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* File Upload Styles */
+        .file-upload-wrapper {
+            width: 100%;
+            position: relative;
+        }
+        .file-upload-label {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #66BB6A); /* 초록색 계열 */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .file-upload-label:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        #image-upload {
+            display: none; /* 실제 파일 인풋 숨기기 */
+        }
+
+        /* Webcam Styles */
+        #webcam-view {
+            width: 100%;
+            max-width: 400px; /* Adjust max-width for webcam */
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            display: none; /* Hidden by default */
+        }
+        #webcam-button {
+            background: linear-gradient(45deg, #FFC107, #FFA000); /* 주황색 계열 */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 250px;
+            display: none; /* Hidden by default */
+        }
+        #webcam-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 250px;
+            height: auto;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            object-fit: contain;
+            margin-top: 15px;
+            display: none; /* Controlled by JS, but hidden by default */
+            opacity: 0; /* For transition */
+            transition: opacity 0.5s ease-in-out; /* Subtle transition */
+        }
+
+        #check-salary-button, #share-button { /* Apply similar styling to share button */
+            background: linear-gradient(45deg, #007bff, #0056b3); /* 둥근 모서리의 파란색 그라데이션 */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+        #kakao-share-button, #reset-button { /* Group these for consistent styling below */
+            background-color: #FEE500; /* Kakao yellow */
+            color: #3C1E1E; /* Dark brown for text */
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 10px; /* Closer to the web share button */
+        }
+        #share-button {
+            margin-top: 20px; /* Ensure spacing if both share buttons are present */
+        }
+        #check-salary-button:hover, #share-button:hover, #kakao-share-button:hover, #reset-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        #check-salary-button:disabled {
+            background: linear-gradient(45deg, #cccccc, #aaaaaa);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        #loading-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #555;
+            margin-top: 20px;
+            display: flex; /* Changed to flex to center spinner */
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            /* Important: Default display is none, JS will toggle to flex */
+            display: none; 
+        }
+        /* CSS Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #007bff; /* Blue */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #result-text {
+            font-size: 2.2em; /* 아주 크고 굵게 강조 */
+            font-weight: 900; /* 더 굵게 */
+            color: #2c3e50;
+            margin-top: 30px;
+            word-break: keep-all; /* 단어 단위로 줄바꿈 */
+            line-height: 1.4;
+        }
+        #salary-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff; /* 파란색으로 강조 */
+            margin-top: 10px;
+        }
+
+
+        /* Responsive adjustments for header padding */
+        @media (max-width: 600px) {
+            #main-header {
+                padding: 10px 15px;
+            }
+            .header-logo {
+                font-size: 1.3em;
+            }
+            #hamburger-btn {
+                font-size: 1.8em;
+            }
+        }
+    </style>
         h1 {
             color: #333; /* Darker gray for contrast */
             margin-bottom: 15px;
@@ -258,6 +458,21 @@
     </style>
 </head>
 <body>
+    <header id="main-header" style="position: fixed; top:0; left:0; width:100%; height: 60px; z-index:1000; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+        <div class="header-logo" style="font-size: 1.5em; font-weight: bold; color: #333;">미래 월급 테스트</div>
+        <button id="hamburger-btn" style="background: none; border: none; font-size: 2em; cursor: pointer; color: #333;">☰</button>
+    </header>
+
+    <!-- Slide-in Menu -->
+    <nav id="mobile-menu" style="position: fixed; top: 0; right: -100%; width: 250px; height: 100%; background-color: #f8f8f8; box-shadow: -2px 0 5px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; padding-top: 60px;">
+        <button id="close-menu-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 2em; cursor: pointer; color: #333;">X</button>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            <li><a href="#home-section" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">홈으로</a></li>
+            <li><a href="#blog-section" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">관상학 칼럼</a></li>
+            <li><a href="#tech-info" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">서비스 소개</a></li>
+            <li><a href="#footer" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em;">문의하기</a></li>
+        </ul>
+    </nav>
     <div class="container">
         <h1>미래 월급 테스트 💰</h1>
         <div class="mode-buttons">
@@ -685,6 +900,26 @@
         kakaoShareButton.addEventListener('click', shareKakao);
 
         init(); // 페이지 로드 시 모델 초기화
+
+        // --- Hamburger Menu Toggle Logic ---
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuItems = document.querySelectorAll('#mobile-menu .menu-item');
+
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+
+        closeMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                mobileMenu.classList.remove('open'); // Close menu on item click
+            });
+        });
     </script>
 
     <footer style="margin-top: 40px; padding: 20px; text-align: center; font-size: 0.85em; color: #777;">
