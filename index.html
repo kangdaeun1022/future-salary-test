@@ -43,7 +43,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 20px; /* Added padding */
+            box-sizing: border-box; /* Added box-sizing */
         }
         .header-logo {
             font-size: 1.5em;
@@ -53,10 +54,10 @@
         #hamburger-btn {
             background: none;
             border: none;
-            font-size: 2em;
-            cursor: pointer;
+            font-size: 24px; /* Adjusted font-size */
+            cursor: pointer; /* Added cursor pointer */
             color: #333;
-            display: block; /* Ensure it's visible */
+            display: block;
         }
 
         /* Mobile Menu Styles */
