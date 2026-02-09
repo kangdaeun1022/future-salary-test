@@ -21,16 +21,21 @@
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
             background-color: #f0f2f5; /* Toss app-like clean white/light gray tone */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
-            padding: 20px; /* Original padding */
+            padding: 0; /* Reset default padding */
             box-sizing: border-box;
             color: #333;
             text-align: center;
-            padding-top: 60px; /* Add padding-top for fixed header */
+            padding-top: 60px; /* Space for fixed header */
+            position: relative; /* For z-index of main content if needed */
+        }
+        /* Ensure the main content is scrollable and centered */
+        #home-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 60px); /* Adjust min-height for header */
+            margin: 0 auto; /* Center the container itself */
         }
         /* Mobile Menu Styles */
         #slide-menu {
@@ -61,3 +66,710 @@
             }
         }
     </style>
+        .container {
+            background-color: #ffffff; /* Pure white container */
+            padding: 30px;
+            border-radius: 20px; /* Softer rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Lighter shadow */
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px; /* Space between elements */
+        }
+        h1 {
+            color: #333; /* Darker gray for contrast */
+            margin-bottom: 15px;
+            font-size: 2.5em; /* Larger title */
+            font-weight: 900; /* Extra bold */
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mode-button {
+            background: #f0f2f5; /* Light gray for inactive mode buttons */
+            color: #555;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mode-button.active, .mode-button:hover {
+            background: linear-gradient(45deg, #007bff, #0056b3); /* Blue gradient for active/hover */
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* File Upload Styles */
+        .file-upload-wrapper {
+            width: 100%;
+            position: relative;
+        }
+        .file-upload-label {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #66BB6A); /* 초록색 계열 */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .file-upload-label:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        #image-upload {
+            display: none; /* 실제 파일 인풋 숨기기 */
+        }
+
+        /* Webcam Styles */
+        #webcam-view {
+            width: 100%;
+            max-width: 400px; /* Adjust max-width for webcam */
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            display: none; /* Hidden by default */
+        }
+        #webcam-button {
+            background: linear-gradient(45deg, #FFC107, #FFA000); /* 주황색 계열 */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 250px;
+            display: none; /* Hidden by default */
+        }
+        #webcam-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 250px;
+            height: auto;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            object-fit: contain;
+            margin-top: 15px;
+            display: none; /* Controlled by JS, but hidden by default */
+            opacity: 0; /* For transition */
+            transition: opacity 0.5s ease-in-out; /* Subtle transition */
+        }
+
+        #check-salary-button, #share-button { /* Apply similar styling to share button */
+            background: linear-gradient(45deg, #007bff, #0056b3); /* 둥근 모서리의 파란색 그라데이션 */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+        #kakao-share-button, #reset-button { /* Group these for consistent styling below */
+            background-color: #FEE500; /* Kakao yellow */
+            color: #3C1E1E; /* Dark brown for text */
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 10px; /* Closer to the web share button */
+        }
+        #share-button {
+            margin-top: 20px; /* Ensure spacing if both share buttons are present */
+        }
+        #check-salary-button:hover, #share-button:hover, #kakao-share-button:hover, #reset-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        #check-salary-button:disabled {
+            background: linear-gradient(45deg, #cccccc, #aaaaaa);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        #loading-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #555;
+            margin-top: 20px;
+            display: flex; /* Changed to flex to center spinner */
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            /* Important: Default display is none, JS will toggle to flex */
+            display: none; 
+        }
+        /* CSS Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #007bff; /* Blue */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #result-text {
+            font-size: 2.2em; /* 아주 크고 굵게 강조 */
+            font-weight: 900; /* 더 굵게 */
+            color: #2c3e50;
+            margin-top: 30px;
+            word-break: keep-all; /* 단어 단위로 줄바꿈 */
+            line-height: 1.4;
+        }
+        #salary-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff; /* 파란색으로 강조 */
+            margin-top: 10px;
+        }
+
+
+        /* 반응형 디자인 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .mode-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            .file-upload-label, #webcam-button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            #check-salary-button, #share-button, #kakao-share-button, #reset-button {
+                padding: 12px 25px;
+                font-size: 1.1em;
+                width: 90%;
+            }
+            #loading-message {
+                font-size: 1.3em;
+            }
+            #result-text {
+                font-size: 1.8em;
+            }
+            #salary-amount {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="main-header" style="position: fixed; top:0; left:0; width:100%; z-index:1000; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+        <div class="header-logo" style="font-size: 1.5em; font-weight: bold; color: #333;">미래 월급 테스트</div>
+        <button id="hamburger-btn" style="background: none; border: none; font-size: 2em; cursor: pointer; color: #333;">≡</button>
+    </header>
+
+    <!-- Slide-in Menu -->
+    <nav id="slide-menu" style="position: fixed; top: 0; right: -250px; width: 250px; height: 100%; background-color: #f8f8f8; box-shadow: -2px 0 5px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; padding-top: 60px;">
+        <button id="close-menu-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 2em; cursor: pointer; color: #333;">X</button>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            <li><a href="#home-section" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">홈으로</a></li>
+            <li><a href="#blog-section" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">관상학 칼럼</a></li>
+            <li><a href="#tech-info" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">서비스 소개</a></li>
+            <li><a href="#footer" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em;">문의하기</a></li>
+        </ul>
+    </nav>
+
+    <div id="home-section" class="container">
+        <h1>미래 월급 테스트 💰</h1>
+        <div class="mode-buttons">
+            <button id="upload-mode-btn" class="mode-button active">📸 사진 업로드</button>
+            <button id="webcam-mode-btn" class="mode-button">📷 카메라로 찍기</button>
+        </div>
+
+        <div id="upload-section" class="input-section">
+            <div class="file-upload-wrapper">
+                <label for="image-upload" class="file-upload-label">파일 선택</label>
+                <input type="file" id="image-upload" accept="image/*">
+            </div>
+        </div>
+
+        <div id="webcam-section" class="input-section" style="display: none;">
+            <video id="webcam-view" playsinline autoplay></video>
+            <button id="webcam-button">셀카 찍기</button>
+            <canvas id="webcam-canvas" style="display: none;"></canvas>
+        </div>
+        
+        <img id="image-preview" src="#" alt="미리보기 이미지">
+        <button id="check-salary-button" disabled>월급 확인하기</button>
+        <!-- Loading message with spinner -->
+        <p id="loading-message">
+            <span class="spinner"></span> AI가 분석 중입니다...
+        </p>
+        <p id="result-text"></p>
+        <p id="salary-amount"></p> <!-- Add element for numerical salary -->
+        <button id="share-button" style="display:none;">🔗 결과 공유하기</button> <!-- Web Share button -->
+        <button id="kakao-share-button" style="display:none;">💬 카카오톡 공유하기</button> <!-- Kakao Share button -->
+        <button id="reset-button" style="display:none;">🔄 다시하기</button> <!-- Reset button -->
+
+        <!-- 기술 정보 및 개인정보 섹션 -->
+        <section id="tech-info" style="width: 100%; max-width: 500px; margin-top: 30px; padding: 25px; background-color: #f8f9fa; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: left; color: #333;">
+            <h2 style="font-size: 1.8em; color: #333; margin-bottom: 20px; text-align: center; font-weight: 700;">서비스 소개 및 기술 정보 ⚙️</h2>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="font-size: 1.3em; color: #0056b3; margin-bottom: 10px; font-weight: 600;">✨ AI 분석 알고리즘</h3>
+                <p style="font-size: 0.95em; line-height: 1.6; color: #555;">
+                    저희 서비스는 구글의 최신 머신러닝 플랫폼인 <strong style="color: #0056b3;">Teachable Machine 2.0</strong>과 강력한 JavaScript 기반의 머신러닝 라이브러리인 <strong style="color: #0056b3;">TensorFlow.js</strong>를 활용하여 제작되었습니다. 이는 단순한 재미를 위한 랜덤 게임이 아닙니다. 수많은 관상 데이터를 학습한 인공지능 모델이 사용자의 얼굴 특징을 정교하게 분석하여 미래 월급을 예측하는 알고리즘을 사용합니다. 웹 표준 기술을 기반으로 구현되어 별도의 앱 설치 없이 어디서든 접근 가능하며, 높은 기술적 완성도를 자랑합니다.
+                </p>
+            </div>
+
+            <div>
+                <h3 style="font-size: 1.3em; color: #d9534f; margin-bottom: 10px; font-weight: 600;">🔒 프라이버시 보안 강조: 사진이 서버로 전송되나요?</h3>
+                <p style="font-size: 1.1em; line-height: 1.8; color: #d9534f; font-weight: bold;">
+                    절대 전송되지 않습니다. 모든 분석 과정은 사용자의 기기(브라우저) 내에서 <strong style="color: #d9534f;">클라이언트 사이드 스크립트로만 처리됩니다.</strong> 따라서 사용자의 사진 데이터가 외부 서버로 전송되거나 저장될 걱정이 전혀 없습니다. 안심하고 서비스를 이용해주세요!
+                </p>
+            </div>
+        </section>
+
+        <!-- 관상학 칼럼 섹션 -->
+        <div id="blog-section" class="blog-section" style="width: 100%; max-width: 500px; margin-top: 40px; text-align: left; background-color: #f9f9f9; padding: 25px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <h2 style="font-size: 1.8em; color: #333; margin-bottom: 25px; text-align: center; font-weight: 700;">관상학 칼럼 📰</h2>
+            
+            <div class="blog-article" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+                <h3 style="font-size: 1.3em; color: #007bff; margin-bottom: 10px; font-weight: 600;">✨ 부자 관상의 특징 5가지</h3>
+                <p style="font-size: 0.95em; line-height: 1.6; color: #555;">
+                    관상학에서 부자의 상을 논할 때 가장 중요하게 보는 것은 이마, 눈썹, 눈, 코, 입, 그리고 귀의 생김새입니다. 첫째, 넓고 봉긋하며 흠집 없는 이마는 일찍부터 성공하고 재물운이 따르는 길상으로 봅니다. 이는 지혜와 사회적 성공을 의미하며, 특히 이마 양 옆의 관록궁이 발달하면 명예와 직위가 높아진다고 해석됩니다. 둘째, 가지런하고 윤기 있는 눈썹은 인복과 형제복을 상징하며, 눈썹이 길고 짙되 눈을 찌르지 않으면 주변의 도움으로 재물을 모으기 쉽습니다. 셋째, 맑고 깊이 있는 눈은 총명함과 통찰력을 나타내며, 특히 눈동자가 크고 빛나면 재물을 지키고 불릴 능력이 탁월하다고 봅니다. 눈 밑 애교살이 도톰하면 자식 복과 더불어 노년의 행복까지 점칠 수 있습니다. 넷째, 크고 곧게 뻗은 코는 재복과 자존심을 상징합니다. 콧방울이 두툼하고 콧대가 반듯하면 재물이 쌓이고 재산을 모으는 능력이 뛰어납니다. 다섯째, 입술이 도톰하고 입꼬리가 위로 살짝 올라간 입은 언변이 좋고 사람을 끄는 매력이 있어 사업이나 사회생활에서 성공할 가능성이 높습니다. 입이 크고 다물어졌을 때 빈틈이 없으면 재물이 새지 않는다고 해석됩니다. 마지막으로 귀는 크고 두툼하며 귓불이 길면 장수와 재물을 동시에 누리는 좋은 관상으로 여겨집니다.
+                </p>
+            </div>
+            
+            <div class="blog-article" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+                <h3 style="font-size: 1.3em; color: #007bff; margin-bottom: 10px; font-weight: 600;">💰 재물운을 부르는 습관</h3>
+                <p style="font-size: 0.95em; line-height: 1.6; color: #555;">
+                    재물운은 단순히 관상으로만 결정되는 것이 아니라, 일상생활의 습관을 통해 얼마든지 개선하고 증진시킬 수 있습니다. 첫째, 청결하고 정돈된 환경을 유지하는 것입니다. 특히 집 안의 현관, 거실, 침실은 기운이 드나들고 머무는 중요한 공간이므로 항상 깨끗하게 유지해야 합니다. 어지러운 환경은 재물운의 흐름을 방해한다고 관상학에서는 강조합니다. 둘째, 긍정적인 사고방식과 감사하는 마음을 갖는 것입니다. 부정적인 생각은 에너지를 소모하고 좋은 기운을 멀리하게 만듭니다. 작은 일에도 감사하고 긍정적인 태도를 유지하려 노력하면 주변에 좋은 인연과 기회가 따르게 됩니다. 셋째, 절약하는 습관을 들이고 무분별한 지출을 삼가는 것입니다. 재물은 들어오는 것도 중요하지만 나가는 것을 막는 것이 더욱 중요합니다. 불필요한 소비를 줄이고 저축과 투자를 통해 자산을 불려나가는 지혜로운 자세가 필요합니다. 넷째, 꾸준히 배우고 성장하는 자세를 갖는 것입니다. 지식과 경험은 곧 새로운 기회를 만들고 재물을 창출하는 원동력이 됩니다. 독서, 세미나 참석, 새로운 기술 습득 등 자기계발을 게을리하지 않아야 합니다. 다섯째, 주변 사람들과 좋은 관계를 유지하는 것입니다. 인맥은 곧 정보와 기회의 통로가 됩니다. 특히 어려운 사람을 돕고 베푸는 마음은 복이 되어 돌아온다는 것이 관상학적 조언입니다.
+                </p>
+            </div>
+
+            <div class="blog-article" style="margin-bottom: 0;">
+                <h3 style="font-size: 1.3em; color: #007bff; margin-bottom: 10px; font-weight: 600;">🤔 내 관상, AI는 어떻게 분석할까?</h3>
+                <p style="font-size: 0.95em; line-height: 1.6; color: #555;">
+                    현대의 관상학은 고대의 지혜와 최신 기술의 융합을 통해 새로운 지평을 열고 있습니다. 특히 인공지능(AI) 기반의 관상 분석은 수많은 얼굴 데이터를 학습하여 특정 얼굴 특징과 통계적 상관관계를 도출해냅니다. AI는 사람의 얼굴에서 눈, 코, 입, 이마 등 주요 부위의 형태, 비율, 위치 등을 정밀하게 측정하고, 이를 과거의 성공 또는 실패 사례 데이터와 비교 분석합니다. 예를 들어, 특정 형태의 코를 가진 사람들이 경제적으로 성공할 확률이 높다는 데이터가 있다면, AI는 이러한 패턴을 학습하여 새로운 얼굴 이미지에도 적용하는 방식입니다. 물론 AI 관상 분석은 100% 정확한 미래 예측 도구라기보다는, 재미있고 흥미로운 자기 탐색의 도구로 활용될 수 있습니다. AI는 학습된 데이터를 기반으로 확률적인 결과를 제시하며, 이는 개인의 노력과 환경에 따라 얼마든지 달라질 수 있습니다. 중요한 것은 AI 분석 결과를 통해 자신을 이해하고, 긍정적인 방향으로 삶을 이끌어 나가는 계기로 삼는 것입니다. 본 테스트 역시 이러한 AI 기반의 관상 분석 원리를 활용하여 여러분의 미래 월급을 예측해 드립니다.
+                </p>
+            </div>
+        </div>
+        
+    </div>
+
+    <script type="text/javascript">
+        const URL = "https://teachablemachine.withgoogle.com/models/z_VsKynJ4/";
+        let model, maxPredictions;
+        let webcamStream = null; // To store webcam stream
+
+        // DOM elements
+        const uploadModeBtn = document.getElementById('upload-mode-btn');
+        const webcamModeBtn = document.getElementById('webcam-mode-btn');
+        const uploadSection = document.getElementById('upload-section');
+        const webcamSection = document.getElementById('webcam-section');
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const webcamView = document.getElementById('webcam-view');
+        const webcamCanvas = document.getElementById('webcam-canvas');
+        const webcamButton = document.getElementById('webcam-button');
+        const checkSalaryButton = document.getElementById('check-salary-button');
+        const loadingMessage = document.getElementById('loading-message');
+        const resultText = document.getElementById('result-text');
+        const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
+        const shareButton = document.getElementById('share-button'); // Web Share button element
+        const kakaoShareButton = document.getElementById('kakao-share-button'); // Kakao Share button element
+        const resetButton = document.getElementById('reset-button'); // Reset button element
+
+        let currentMode = 'upload'; // Initial mode
+
+        // Initialize Kakao SDK
+        // Kakao.init should be called outside of async functions
+        // It needs to be called after the SDK script is loaded.
+        if (Kakao && !Kakao.isInitialized()) {
+            Kakao.init('783d4abe65a9e7fd57276ee69d32fc04');
+            console.log('Kakao SDK initialized:', Kakao.isInitialized());
+        }
+
+
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+            
+            console.log("Teachable Machine 모델 로드 완료!");
+            // Initially ensure UI matches currentMode
+            switchMode(currentMode);
+        }
+
+        // --- Confetti Function ---
+        function triggerConfetti() {
+            const confettiEmojis = ['💸', '💰']; // Emojis for confetti
+            const defaults = {
+                spread: 360,
+                ticks: 50,
+                gravity: 0.5,
+                decay: 0.94,
+                startVelocity: 30,
+                colors: ['#FFD700', '#C0C0C0', '#DAA520', '#FFFFFF'] // Gold, Silver, Goldenrod, White
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(200 * particleRatio),
+                    shapes: ['emoji'],
+                    shapeOptions: {
+                        emoji: confettiEmojis
+                    }
+                }));
+            }
+
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+            });
+            fire(0.2, {
+                spread: 60,
+            });
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                scalar: 1.2
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+        }
+
+
+        // --- Webcam Functions ---
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                webcamView.srcObject = stream;
+                webcamStream = stream; // Store stream to stop it later
+                webcamButton.style.display = 'block'; // Show take selfie button
+            } catch (err) {
+                console.error("Webcam access denied or error: ", err);
+                alert("카메라 접근을 허용해주세요. 또는 다른 모드를 이용해주세요. 오류: " + err.message);
+                webcamButton.style.display = 'none'; // Hide take selfie button on error
+            }
+        }
+
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamView.srcObject = null;
+                webcamStream = null;
+                webcamButton.style.display = 'none'; // Hide take selfie button
+            }
+        }
+
+        webcamButton.addEventListener('click', function() {
+            if (webcamView.srcObject) {
+                const context = webcamCanvas.getContext('2d');
+                webcamCanvas.width = webcamView.videoWidth;
+                webcamCanvas.height = webcamView.videoHeight;
+                context.drawImage(webcamView, 0, 0, webcamView.videoWidth, webcamView.videoHeight);
+                const imageData = webcamCanvas.toDataURL('image/png');
+                imagePreview.src = imageData;
+                imagePreview.style.display = 'block'; // Use display: block
+                setTimeout(() => imagePreview.style.opacity = '1', 10); // Fade in
+                checkSalaryButton.disabled = false; // Enable button after taking photo
+                resetResults(); // Clear previous results and hide share/reset buttons
+            } else {
+                alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
+            }
+        });
+
+        // --- Reset Function ---
+        function resetResults() {
+            resultText.textContent = '';
+            salaryAmountDisplay.textContent = '';
+            loadingMessage.style.display = 'none'; // Hide spinner
+            shareButton.style.display = 'none';
+            kakaoShareButton.style.display = 'none';
+            resetButton.style.display = 'none'; // Hide reset button
+        }
+        
+        function resetTest() {
+            resetResults();
+            imagePreview.src = '#';
+            imagePreview.style.opacity = '0'; // Start fade out
+            setTimeout(() => { // Wait for fade out to complete before hiding
+                imagePreview.style.display = 'none'; 
+            }, 500); 
+            checkSalaryButton.disabled = true;
+            switchMode('upload'); // Go back to default upload mode
+        }
+        resetButton.addEventListener('click', resetTest);
+
+
+        // --- Mode Switching Logic ---
+        function switchMode(mode) {
+            currentMode = mode;
+            resetResults(); // Clear results and hide buttons
+            checkSalaryButton.disabled = true; // Disable until new image is ready
+            imagePreview.style.opacity = '0'; // Hide preview image initially
+            setTimeout(() => { // Wait for fade out to complete before hiding
+                imagePreview.style.display = 'none'; 
+            }, 500);
+
+            if (mode === 'upload') {
+                uploadSection.style.display = 'flex';
+                webcamSection.style.display = 'none';
+                uploadModeBtn.classList.add('active');
+                webcamModeBtn.classList.remove('active');
+                stopWebcam(); // Stop webcam if switching from webcam mode
+            } else if (mode === 'webcam') {
+                uploadSection.style.display = 'none';
+                webcamSection.style.display = 'flex';
+                uploadModeBtn.classList.remove('active');
+                webcamModeBtn.classList.add('active');
+                startWebcam(); // Start webcam if switching to webcam mode
+            }
+        }
+
+        uploadModeBtn.addEventListener('click', () => switchMode('upload'));
+        webcamModeBtn.addEventListener('click', () => switchMode('webcam'));
+
+
+        // --- Image Upload Logic ---
+        imageUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block'; // Use display: block
+                    setTimeout(() => imagePreview.style.opacity = '1', 10); // Fade in
+                    checkSalaryButton.disabled = false; // Enable button after taking photo
+                    resetResults(); // Clear previous results and hide share/reset buttons
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = '#';
+                imagePreview.style.opacity = '0'; // Start fade out
+                setTimeout(() => { // Wait for fade out to complete before hiding
+                    imagePreview.style.display = 'none'; 
+                }, 500);
+                checkSalaryButton.disabled = true;
+                resetResults();
+            }
+        });
+
+        // --- Utility for Random Numbers ---
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // --- Utility for Korean Won Formatting ---
+        function formatKoreanWon(amount) {
+            if (amount >= 100000000) { // 억 단위
+                const uk = Math.floor(amount / 100000000);
+                const man = Math.floor((amount % 100000000) / 10000);
+                let result = `${uk}억`;
+                if (man > 0) {
+                    result += ` ${man}만`;
+                }
+                return result + ' 원';
+            } else if (amount >= 10000) { // 만 단위
+                const man = Math.floor(amount / 10000);
+                return `${man}만 원`;
+            } else { // 천 원 단위 이하
+                return amount.toLocaleString() + ' 원';
+            }
+        }
+
+
+        // --- Prediction Logic ---
+        checkSalaryButton.addEventListener('click', predict);
+
+        async function predict() {
+            if (!imagePreview.src || imagePreview.style.display === 'none') { // Check display for prediction
+                alert("먼저 이미지를 업로드하거나 촬영해주세요!");
+                return;
+            }
+
+            loadingMessage.style.display = 'flex'; // Show loading message with spinner
+            resetResults(); // Clear previous results and hide share/reset buttons (except loading itself)
+            checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
+
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+
+            // Use imagePreview directly for prediction
+            const prediction = await model.predict(imagePreview);
+            
+            loadingMessage.style.display = 'none'; // Hide loading message
+            checkSalaryButton.disabled = false; // 버튼 다시 활성화
+
+            let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
+            let salaryAmountNum = 0; // Raw numerical amount
+            let highestProbability = 0;
+            let predictedClass = '';
+
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability.toFixed(2) > highestProbability) {
+                    highestProbability = prediction[i].probability.toFixed(2);
+                    predictedClass = prediction[i].className;
+                }
+            }
+            
+            switch (predictedClass) {
+                case "Class 1": 
+                case "부자": 
+                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 월급 ";
+                    salaryAmountNum = getRandomInt(30_000_000_000, 100_000_000_000); // 300억 ~ 1000억
+                    break;
+                case "Class 2":
+                case "중산층":
+                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 미래 월급 ";
+                    salaryAmountNum = getRandomInt(80_000_000, 300_000_000); // 8천만 ~ 3억
+                    break;
+                case "Class 3":
+                case "거지":
+                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 미래 월급 ";
+                    salaryAmountNum = getRandomInt(20_000_000, 50_000_000); // 2천만 ~ 5천만
+                    break;
+                default:
+                    resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
+                    salaryAmountNum = 0;
+            }
+
+            resultText.innerHTML = resultMessage;
+            if (salaryAmountNum > 0) {
+                salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
+                triggerConfetti(); // Trigger confetti when salary amount is displayed
+
+                // Show share buttons if available
+                if (navigator.share) {
+                    shareButton.style.display = 'block';
+                }
+                if (Kakao.isInitialized()) {
+                    kakaoShareButton.style.display = 'block';
+                }
+                resetButton.style.display = 'block'; // Show reset button after result
+            }
+        }
+
+        // --- Web Share Button Logic ---
+        shareButton.addEventListener('click', async () => {
+            if (navigator.share) {
+                try {
+                    const shareData = {
+                        title: '미래 월급 테스트 결과',
+                        text: `${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
+                        url: window.location.href
+                    };
+                    await navigator.share(shareData);
+                    console.log('Web Share successful');
+                } catch (error) {
+                    console.error('Error sharing via Web Share:', error);
+                    // User might have cancelled the share, or an error occurred
+                }
+            } else {
+                alert('이 브라우저에서는 공유하기 기능을 지원하지 않습니다.');
+                console.log('Web Share API not supported in this browser.');
+            }
+        });
+
+        // --- Kakao Share Function ---
+        function shareKakao() {
+            if (Kakao.isInitialized()) {
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '미래 월급 관상 테스트',
+                        description: `AI가 분석한 내 미래 월급은 ${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
+                        link: {
+                            webUrl: 'https://future-salary-test.pages.dev',
+                        },
+                    },
+
+                });
+            } else {
+                alert('카카오 SDK가 초기화되지 않았습니다.');
+                console.error('Kakao SDK not initialized.');
+            }
+        }
+        kakaoShareButton.addEventListener('click', shareKakao);
+
+        init(); // 페이지 로드 시 모델 초기화
+
+        // --- Hamburger Menu Toggle Logic ---
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const slideMenu = document.getElementById('slide-menu');
+        const menuItems = document.querySelectorAll('#slide-menu .menu-item');
+
+        hamburgerBtn.addEventListener('click', () => {
+            slideMenu.classList.add('open');
+        });
+
+        closeMenuBtn.addEventListener('click', () => {
+            slideMenu.classList.remove('open');
+        });
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                slideMenu.classList.remove('open'); // Close menu on item click
+                // Smooth scroll will be handled by CSS scroll-behavior: smooth; on html element
+            });
+        });
+    </script>
+
+    <footer id="footer" style="margin-top: 40px; padding: 20px; text-align: center; font-size: 0.85em; color: #777;">
+        <p>&copy; 2024 미래 월급 테스트. All rights reserved.</p>
+        <p style="margin-top: 10px;">
+            <a href="#" style="color: #777; text-decoration: none; margin: 0 10px;">이용약관</a> |
+            <a href="#" style="color: #777; text-decoration: none; margin: 0 10px;">개인정보처리방침</a> |
+            <a href="#" style="color: #777; text-decoration: none; margin: 0 10px;">문의하기</a>
+        </p>
+    </footer>
+</body>
+</html>
