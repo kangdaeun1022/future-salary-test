@@ -309,7 +309,7 @@
             line-height: 1.4;
         }
         #salary-amount {
-            font-size: 1.8em;
+            font-size: 2.8em;
             font-weight: bold;
             color: #007bff;
             margin-top: 10px;
@@ -556,6 +556,28 @@
 
     <script type="text/javascript">
         const URL = "https://teachablemachine.withgoogle.com/models/OgIgQ0pYA/";
+        
+        const richMessages = [
+            '숨만 쉬어도 돈이 들어오는 관상',
+            '걸어 다니는 중소기업',
+            '전생에 나라를 구함',
+            '조물주 위에 건물주',
+            '재벌 3세의 기운이 느껴짐'
+        ];
+        const middleClassMessages = [
+            '어딜 가나 환영받는 인재',
+            '워라밸을 즐기는 능력자',
+            '부장님 소리 듣는 관상',
+            '실속 챙기는 알부자',
+            '안정적인 자산가'
+        ];
+        const poorMessages = [
+            '티끌 모아 태산! 성실함이 무기',
+            '대기만성형! 늦게 터집니다',
+            '돈보다 명예를 좇는 예술가',
+            '지금은 힘들어도 끝은 창대하리라',
+            '로또 당첨을 노려보세요'
+        ];
         let model, maxPredictions;
         let webcamStream = null; // To store webcam stream
 
@@ -772,19 +794,12 @@
 
         // --- Utility for Korean Won Formatting ---
         function formatKoreanWon(amount) {
-            if (amount >= 100000000) { // 억 단위
-                const uk = Math.floor(amount / 100000000);
-                const man = Math.floor((amount % 100000000) / 10000);
-                let result = `${uk}억`;
-                if (man > 0) {
-                    result += ` ${man}만`;
-                }
-                return result + ' 원';
-            } else if (amount >= 10000) { // 만 단위
-                const man = Math.floor(amount / 10000);
-                return `${man}만 원`;
-            } else { // 천 원 단위 이하
-                return amount.toLocaleString() + ' 원';
+            const manUnit = 10000;
+            if (amount >= manUnit) {
+                const millions = Math.floor(amount / manUnit);
+                return `월 ${millions.toLocaleString()}만 원`;
+            } else {
+                return `월 ${amount.toLocaleString()}원`;
             }
         }
 
@@ -825,18 +840,18 @@
             switch (predictedClass) {
                 case "Class 1": 
                 case "부자": 
-                    resultMessage = "✨금빛 찬란 재벌 회장님 관상! 미래 월급 ";
-                    salaryAmountNum = getRandomInt(30_000_000_000, 100_000_000_000); // 300억 ~ 1000억
+                    resultMessage = richMessages[Math.floor(Math.random() * richMessages.length)] + " 예상 월급 ";
+                    salaryAmountNum = getRandomInt(8_000_000, 30_000_000); // 월 800만 ~ 3,000만
                     break;
                 case "Class 2":
                 case "중산층":
-                    resultMessage = "🚀능력 만렙 실력파 직장인 관상! 미래 월급 ";
-                    salaryAmountNum = getRandomInt(80_000_000, 300_000_000); // 8천만 ~ 3억
+                    resultMessage = middleClassMessages[Math.floor(Math.random() * middleClassMessages.length)] + " 예상 월급 ";
+                    salaryAmountNum = getRandomInt(3_500_000, 6_000_000); // 월 350만 ~ 600만
                     break;
                 case "Class 3":
                 case "거지":
-                    resultMessage = "🍀소박하지만 확실한 행복 추구 관상! 미래 월급 ";
-                    salaryAmountNum = getRandomInt(20_000_000, 50_000_000); // 2천만 ~ 5천만
+                    resultMessage = poorMessages[Math.floor(Math.random() * poorMessages.length)] + " 예상 월급 ";
+                    salaryAmountNum = getRandomInt(2_200_000, 3_000_000); // 월 220만 ~ 300만
                     break;
                 default:
                     resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
