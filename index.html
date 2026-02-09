@@ -14,19 +14,59 @@
     <!-- Kakao SDK -->
     <script src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KxjrFjzHa5TAoFQ6GbYTCAG0bjM55XohjjDT7tDDC01' crossorigin='anonymous'></script>
     <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 60px; /* Offset for fixed header height */
+        }
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
             background-color: #f0f2f5; /* Toss app-like clean white/light gray tone */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 0; /* Reset default padding */
             box-sizing: border-box;
             color: #333;
             text-align: center;
         }
+        /* Ensure the main content is scrollable and centered */
+        #home-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 60px); /* Adjust min-height for header */
+            margin: 0 auto; /* Center the container itself */
+            padding-top: 60px; /* Space for fixed header */
+            position: relative; /* For z-index if needed */
+        }
+
+        /* Mobile Menu Styles */
+        #slide-menu {
+            right: -250px; /* Initially hidden */
+            transition: right 0.3s ease-in-out;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+        #slide-menu.open {
+            right: 0; /* Slide in */
+        }
+        #hamburger-btn, #close-menu-btn {
+            display: block; /* Ensure buttons are visible */
+        }
+        .menu-item:hover {
+            background-color: #e9e9e9;
+        }
+
+        /* Responsive adjustments for header padding */
+        @media (max-width: 600px) {
+            #main-header {
+                padding: 10px 15px;
+            }
+            .header-logo {
+                font-size: 1.3em;
+            }
+            #hamburger-btn {
+                font-size: 1.8em;
+            }
+        }
+    </style>
         .container {
             background-color: #ffffff; /* Pure white container */
             padding: 30px;
@@ -258,7 +298,23 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <header id="main-header" style="position: fixed; top:0; left:0; width:100%; z-index:1000; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+        <div class="header-logo" style="font-size: 1.5em; font-weight: bold; color: #333;">미래 월급 테스트</div>
+        <button id="hamburger-btn" style="background: none; border: none; font-size: 2em; cursor: pointer; color: #333;">≡</button>
+    </header>
+
+    <!-- Slide-in Menu -->
+    <nav id="slide-menu" style="position: fixed; top: 0; right: -250px; width: 250px; height: 100%; background-color: #f8f8f8; box-shadow: -2px 0 5px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; padding-top: 60px;">
+        <button id="close-menu-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 2em; cursor: pointer; color: #333;">X</button>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            <li><a href="#home-section" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">홈으로</a></li>
+            <li><a href="#blog-section" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">관상학 칼럼</a></li>
+            <li><a href="#tech-info" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em; border-bottom: 1px solid #eee;">서비스 소개</a></li>
+            <li><a href="#footer" class="menu-item" style="display: block; padding: 15px 20px; text-decoration: none; color: #333; font-size: 1.1em;">문의하기</a></li>
+        </ul>
+    </nav>
+
+    <div id="home-section" class="container">
         <h1>미래 월급 테스트 💰</h1>
         <div class="mode-buttons">
             <button id="upload-mode-btn" class="mode-button active">📸 사진 업로드</button>
@@ -310,7 +366,7 @@
         </section>
 
         <!-- 관상학 칼럼 섹션 -->
-        <div class="blog-section" style="width: 100%; max-width: 500px; margin-top: 40px; text-align: left; background-color: #f9f9f9; padding: 25px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <div id="blog-section" class="blog-section" style="width: 100%; max-width: 500px; margin-top: 40px; text-align: left; background-color: #f9f9f9; padding: 25px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
             <h2 style="font-size: 1.8em; color: #333; margin-bottom: 25px; text-align: center; font-weight: 700;">관상학 칼럼 📰</h2>
             
             <div class="blog-article" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
@@ -685,9 +741,30 @@
         kakaoShareButton.addEventListener('click', shareKakao);
 
         init(); // 페이지 로드 시 모델 초기화
+
+        // --- Hamburger Menu Toggle Logic ---
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const slideMenu = document.getElementById('slide-menu');
+        const menuItems = document.querySelectorAll('#slide-menu .menu-item');
+
+        hamburgerBtn.addEventListener('click', () => {
+            slideMenu.classList.add('open');
+        });
+
+        closeMenuBtn.addEventListener('click', () => {
+            slideMenu.classList.remove('open');
+        });
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                slideMenu.classList.remove('open'); // Close menu on item click
+                // Smooth scroll will be handled by CSS scroll-behavior: smooth; on html element
+            });
+        });
     </script>
 
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; font-size: 0.85em; color: #777;">
+    <footer id="footer" style="margin-top: 40px; padding: 20px; text-align: center; font-size: 0.85em; color: #777;">
         <p>&copy; 2024 미래 월급 테스트. All rights reserved.</p>
         <p style="margin-top: 10px;">
             <a href="#" style="color: #777; text-decoration: none; margin: 0 10px;">이용약관</a> |
