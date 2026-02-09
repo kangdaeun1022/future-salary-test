@@ -471,25 +471,15 @@
     <!-- Main Content Container -->
     <div id="home-section" class="container">
         <h1>미래 월급 테스트 💰</h1>
-        <div class="mode-buttons">
-            <button id="upload-mode-btn" class="mode-button active">📸 사진 업로드</button>
-            <button id="webcam-mode-btn" class="mode-button">📷 카메라로 찍기</button>
-        </div>
-
-        <div id="upload-section" class="input-section">
-            <div class="file-upload-wrapper">
-                <label for="image-upload" class="file-upload-label">파일 선택</label>
-                <input type="file" id="image-upload" accept="image/*">
-            </div>
-        </div>
-
-        <div id="webcam-section" class="input-section" style="display: none;">
-            <video id="webcam-view" playsinline autoplay></video>
-            <button id="webcam-button">셀카 찍기</button>
-            <canvas id="webcam-canvas" style="display: none;"></canvas>
-        </div>
         
-        <img id="image-preview" src="#" alt="미리보기 이미지">
+        <!-- New "사진 찍기 / 업로드" button -->
+        <button id="open-file-dialog-button" class="mode-button" onclick="document.getElementById('image-upload-hidden').click()">📸 사진 찍기 / 업로드</button>
+
+        <!-- Hidden input for file upload -->
+        <input type="file" id="image-upload-hidden" accept="image/*" style="display: none;">
+        
+        <!-- Image preview -->
+        <img id='uploaded-image' src='#' style='display:none; max-width:100%; max-height: 250px; border-radius: 10px; border: 2px dashed #ddd; object-fit: contain; margin-top: 15px;'>
         <button id="check-salary-button" disabled>월급 확인하기</button>
         <!-- Loading message with spinner -->
         <p id="loading-message">
@@ -581,18 +571,12 @@
             '로또 당첨을 노려보세요'
         ];
         let model, maxPredictions;
-        let webcamStream = null; // To store webcam stream
+        let webcamStream = null; // No longer used, but keeping for now as a placeholder for removed content, will delete in next step
 
         // DOM elements
-        const uploadModeBtn = document.getElementById('upload-mode-btn');
-        const webcamModeBtn = document.getElementById('webcam-mode-btn');
-        const uploadSection = document.getElementById('upload-section');
-        const webcamSection = document.getElementById('webcam-section');
-        const imageUpload = document.getElementById('image-upload');
-        const imagePreview = document.getElementById('image-preview');
-        const webcamView = document.getElementById('webcam-view');
-        const webcamCanvas = document.getElementById('webcam-canvas');
-        const webcamButton = document.getElementById('webcam-button');
+        const openFileDialogButton = document.getElementById('open-file-dialog-button'); // New button
+        const imageUploadHidden = document.getElementById('image-upload-hidden'); // New hidden input
+        const uploadedImage = document.getElementById('uploaded-image'); // New image preview
         const checkSalaryButton = document.getElementById('check-salary-button');
         const loadingMessage = document.getElementById('loading-message');
         const resultText = document.getElementById('result-text');
@@ -601,7 +585,8 @@
         const kakaoShareButton = document.getElementById('kakao-share-button'); // Kakao Share button element
         const resetButton = document.getElementById('reset-button'); // Reset button element
 
-        let currentMode = 'upload'; // Initial mode
+        // Initial mode is implicitly 'upload'
+        // No currentMode variable or switchMode function needed as only one mode exists.
 
         // Initialize Kakao SDK
         // Kakao.init should be called outside of async functions
@@ -620,8 +605,7 @@
             maxPredictions = model.getTotalClasses();
             
             console.log("Teachable Machine 모델 로드 완료!");
-            // Initially ensure UI matches currentMode
-            switchMode(currentMode);
+            // No mode switching needed, directly prepare for upload logic
         }
 
         // --- Confetti Function ---
@@ -671,46 +655,6 @@
         }
 
 
-        // --- Webcam Functions ---
-        async function startWebcam() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                webcamView.srcObject = stream;
-                webcamStream = stream; // Store stream to stop it later
-                webcamButton.style.display = 'block'; // Show take selfie button
-            } catch (err) {
-                console.error("Webcam access denied or error: ", err);
-                alert("카메라 접근을 허용해주세요. 또는 다른 모드를 이용해주세요. 오류: " + err.message);
-                webcamButton.style.display = 'none'; // Hide take selfie button on error
-            }
-        }
-
-        function stopWebcam() {
-            if (webcamStream) {
-                webcamStream.getTracks().forEach(track => track.stop());
-                webcamView.srcObject = null;
-                webcamStream = null;
-                webcamButton.style.display = 'none'; // Hide take selfie button
-            }
-        }
-
-        webcamButton.addEventListener('click', function() {
-            if (webcamView.srcObject) {
-                const context = webcamCanvas.getContext('2d');
-                webcamCanvas.width = webcamView.videoWidth;
-                webcamCanvas.height = webcamView.videoHeight;
-                context.drawImage(webcamView, 0, 0, webcamView.videoWidth, webcamView.videoHeight);
-                const imageData = webcamCanvas.toDataURL('image/png');
-                imagePreview.src = imageData;
-                imagePreview.style.display = 'block'; // Use display: block
-                setTimeout(() => imagePreview.style.opacity = '1', 10); // Fade in
-                checkSalaryButton.disabled = false; // Enable button after taking photo
-                resetResults(); // Clear previous results and hide share/reset buttons
-            } else {
-                alert("웹캠이 활성화되지 않았습니다. 잠시 후 다시 시도해주세요.");
-            }
-        });
-
         // --- Reset Function ---
         function resetResults() {
             resultText.textContent = '';
@@ -723,64 +667,35 @@
         
         function resetTest() {
             resetResults();
-            imagePreview.src = '#';
-            imagePreview.style.opacity = '0'; // Start fade out
+            uploadedImage.src = '#'; // Use new image element
+            uploadedImage.style.opacity = '0'; // Start fade out
             setTimeout(() => { // Wait for fade out to complete before hiding
-                imagePreview.style.display = 'none'; 
+                uploadedImage.style.display = 'none'; 
             }, 500); 
             checkSalaryButton.disabled = true;
-            switchMode('upload'); // Go back to default upload mode
+            // No mode switching needed
         }
         resetButton.addEventListener('click', resetTest);
 
 
-        // --- Mode Switching Logic ---
-        function switchMode(mode) {
-            currentMode = mode;
-            resetResults(); // Clear results and hide buttons
-            checkSalaryButton.disabled = true; // Disable until new image is ready
-            imagePreview.style.opacity = '0'; // Hide preview image initially
-            setTimeout(() => { // Wait for fade out to complete before hiding
-                imagePreview.style.display = 'none'; 
-            }, 500);
-
-            if (mode === 'upload') {
-                uploadSection.style.display = 'flex';
-                webcamSection.style.display = 'none';
-                uploadModeBtn.classList.add('active');
-                webcamModeBtn.classList.remove('active');
-                stopWebcam(); // Stop webcam if switching from webcam mode
-            } else if (mode === 'webcam') {
-                uploadSection.style.display = 'none';
-                webcamSection.style.display = 'flex';
-                uploadModeBtn.classList.remove('active');
-                webcamModeBtn.classList.add('active');
-                startWebcam(); // Start webcam if switching to webcam mode
-            }
-        }
-
-        uploadModeBtn.addEventListener('click', () => switchMode('upload'));
-        webcamModeBtn.addEventListener('click', () => switchMode('webcam'));
-
-
         // --- Image Upload Logic ---
-        imageUpload.addEventListener('change', function(event) {
+        imageUploadHidden.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block'; // Use display: block
-                    setTimeout(() => imagePreview.style.opacity = '1', 10); // Fade in
-                    checkSalaryButton.disabled = false; // Enable button after taking photo
+                    uploadedImage.src = e.target.result;
+                    uploadedImage.style.display = 'block'; // Use display: block
+                    setTimeout(() => uploadedImage.style.opacity = '1', 10); // Fade in
+                    checkSalaryButton.disabled = false; // Enable button after photo
                     resetResults(); // Clear previous results and hide share/reset buttons
                 };
                 reader.readAsDataURL(file);
             } else {
-                imagePreview.src = '#';
-                imagePreview.style.opacity = '0'; // Start fade out
+                uploadedImage.src = '#';
+                uploadedImage.style.opacity = '0'; // Start fade out
                 setTimeout(() => { // Wait for fade out to complete before hiding
-                    imagePreview.style.display = 'none'; 
+                    uploadedImage.style.display = 'none'; 
                 }, 500);
                 checkSalaryButton.disabled = true;
                 resetResults();
@@ -810,7 +725,7 @@
         checkSalaryButton.addEventListener('click', predict);
 
         async function predict() {
-            if (!imagePreview.src || imagePreview.style.display === 'none') { // Check display for prediction
+            if (!uploadedImage.src || uploadedImage.style.display === 'none') { // Check display for prediction
                 alert("먼저 이미지를 업로드하거나 촬영해주세요!");
                 return;
             }
@@ -821,8 +736,8 @@
 
             await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
 
-            // Use imagePreview directly for prediction
-            const prediction = await model.predict(imagePreview);
+            // Use uploadedImage directly for prediction
+            const prediction = await model.predict(uploadedImage);
             
             loadingMessage.style.display = 'none'; // Hide loading message
             checkSalaryButton.disabled = false; // 버튼 다시 활성화
