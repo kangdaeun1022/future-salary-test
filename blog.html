@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래 월급 테스트</title>
+    <title>블로그 - 미래 월급 테스트</title>
     <meta property="og:url" content="https://future-salary-test.pages.dev">
     <meta property="og:type" content="website">
     <meta name="description" content="AI가 당신의 미래 월급을 예측해드립니다. 무료 관상 테스트를 통해 당신의 운명적인 연봉을 확인하고, 재물운을 높이는 관상학 칼럼을 확인하세요.">
@@ -458,54 +458,34 @@
         </ul>
     </nav>
 
-    <!-- Main Content Container -->
-    <div id="home-section" class="container">
-        <h1>미래 월급 테스트 💰</h1>
-        
-        <!-- New "사진 찍기 / 업로드" button -->
-        <button id="open-file-dialog-button" class="mode-button" onclick="document.getElementById('image-upload-hidden').click()">📸 사진 찍기 / 업로드</button>
-
-        <!-- Hidden input for file upload -->
-        <input type="file" id="image-upload-hidden" accept="image/*" style="display: none;">
-        
-        <!-- Image preview -->
-        <img id='uploaded-image' src='#' style='display:none; max-width:100%; max-height: 250px; border-radius: 10px; border: 2px dashed #ddd; object-fit: contain; margin-top: 15px;'>
-        <button id="check-salary-button" disabled>월급 확인하기</button>
-        <!-- Loading message with spinner -->
-        <p id="loading-message">
-            <span class="spinner"></span> AI가 분석 중입니다...
-        </p>
-        <p id="result-text"></p>
-        <p id="salary-amount"></p> <!-- Add element for numerical salary -->
-        <button id="share-button" style="display:none;">🔗 결과 공유하기</button> <!-- Web Share button -->
-        <button id="kakao-share-button" style="display:none;">💬 카카오톡 공유하기</button> <!-- Kakao Share button -->
-        <button id="reset-button" style="display:none;">🔄 다시하기</button> <!-- Reset button -->
+    <!-- Main content for blog.html starts here -->
+    <div id="blog-list-section" class="container">
+        <h1>블로그 📝</h1>
+        <div class="blog-list">
+            <!-- Blog posts will be dynamically loaded or listed here -->
+            <div class="blog-article-summary">
+                <h3><a href="post-1.html">관상학, 역사의 거울에 비친 인간의 욕망</a></h3>
+                <p>수천 년간 이어져 온 관상학의 흥미로운 역사와 시대별 변화, 그리고 현대 사회에 미치는 영향에 대해 알아봅니다.</p>
+            </div>
+            <div class="blog-article-summary">
+                <h3><a href="post-2.html">재물운을 부르는 얼굴 특징: AI는 무엇을 볼까?</a></h3>
+                <p>재물운과 관련된 관상학적 특징들을 살펴보고, AI가 이러한 특징들을 어떻게 분석하고 해석하는지 깊이 있게 다룹니다.</p>
+            </div>
+            <div class="blog-article-summary">
+                <h3><a href="post-3.html">AI 관상 분석, 단순한 재미를 넘어선 과학적 접근</a></h3>
+                <p>AI 기술이 관상 분석에 어떻게 적용되는지, 그리고 방대한 통계 데이터를 통해 어떤 인사이트를 얻을 수 있는지 탐구합니다.</p>
+            </div>
+            <div class="blog-article-summary">
+                <h3><a href="post-4.html">성공하는 사람들의 숨겨진 관상 특징</a></h3>
+                <p>역사 속 성공한 인물들과 현대 리더들의 공통적인 관상 특징을 분석하여, 성공과 관상의 연관성을 조명합니다.</p>
+            </div>
+            <div class="blog-article-summary">
+                <h3><a href="post-5.html">미래를 예측하는 AI: 관상학의 새로운 지평</a></h3>
+                <p>인공지능과 관상학의 만남이 가져올 미래에 대한 전망과 함께, 더욱 발전할 AI 관상 분석 기술의 가능성을 논합니다.</p>
+            </div>
+        </div>
     </div>
-
-    <!-- Card Link Buttons -->
-    <div class="card-link-container">
-        <a href="column.html" class="card-link">💰 부자 관상학 칼럼 보러가기 ></a>
-        <a href="about.html" class="card-link">🤖 AI 분석 원리 알아보기 ></a>
-    </div>
-
-    <!-- 사용 방법 (3단계) -->
-    <section class="info-section">
-        <h2>✨ 사용 방법 (3단계)</h2>
-        <h3>1. 사진 준비</h3>
-        <p>선명하고 얼굴이 잘 보이는 셀카나 정면 사진을 준비해 주세요. 안경이나 모자는 벗고 촬영하는 것이 AI 정확도를 높이는 데 도움이 됩니다.</p>
-        <h3>2. AI 분석 시작</h3>
-        <p>준비된 사진을 업로드하거나 즉석에서 촬영하여 AI가 당신의 관상을 분석하도록 해주세요. 잠시 기다리면 분석 결과가 나타납니다.</p>
-        <h3>3. 결과 확인 및 공유</h3>
-        <p>AI가 예측한 당신의 미래 월급과 함께 흥미로운 메시지를 확인하세요. 친구들과 결과를 공유하며 재미를 더할 수 있습니다.</p>
-    </section>
-
-    <!-- AI 관상 분석 원리 요약 -->
-    <section class="info-section">
-        <h2>🤖 AI 관상 분석 원리 요약</h2>
-        <p>
-            저희 서비스는 구글의 Teachable Machine 2.0과 TensorFlow.js를 활용하여 작동합니다. 이는 수많은 관상 데이터를 학습한 인공지능 모델이 얼굴의 특정 특징(눈, 코, 입, 이마 등)을 정밀하게 측정하고 분석하여 통계적 상관관계를 도출합니다. 사용자의 사진은 오직 기기 내에서만 처리되며, 외부 서버로 전송되거나 저장되지 않아 안심하고 이용할 수 있습니다. AI는 학습된 패턴을 기반으로 미래 월급을 예측하지만, 이는 100% 정확한 예언이 아닌 재미와 자기 성찰을 위한 도구임을 기억해주세요.
-        </p>
-    </section>
+    <!-- Main content for blog.html ends here -->
 
     <footer id="footer">
         <p>&copy; 2026 미래 월급 테스트. All rights reserved.</p>
@@ -517,294 +497,6 @@
     </footer>
 
     <script type="text/javascript">
-        const URL = "https://teachablemachine.withgoogle.com/models/OgIgQ0pYA/";
-        
-        const richMessages = [
-            '숨만 쉬어도 돈이 들어오는 관상',
-            '걸어 다니는 중소기업',
-            '전생에 나라를 구함',
-            '조물주 위에 건물주',
-            '재벌 3세의 기운이 느껴짐'
-        ];
-        const middleClassMessages = [
-            '어딜 가나 환영받는 인재',
-            '워라밸을 즐기는 능력자',
-            '부장님 소리 듣는 관상',
-            '실속 챙기는 알부자',
-            '안정적인 자산가'
-        ];
-        const poorMessages = [
-            '티끌 모아 태산! 성실함이 무기',
-            '대기만성형! 늦게 터집니다',
-            '돈보다 명예를 좇는 예술가',
-            '지금은 힘들어도 끝은 창대하리라',
-            '로또 당첨을 노려보세요'
-        ];
-        let model, maxPredictions;
-        let webcamStream = null; // No longer used, but keeping for now as a placeholder for removed content, will delete in next step
-
-        // DOM elements
-        const openFileDialogButton = document.getElementById('open-file-dialog-button'); // New button
-        const imageUploadHidden = document.getElementById('image-upload-hidden'); // New hidden input
-        const uploadedImage = document.getElementById('uploaded-image'); // New image preview
-        const checkSalaryButton = document.getElementById('check-salary-button');
-        const loadingMessage = document.getElementById('loading-message');
-        const resultText = document.getElementById('result-text');
-        const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
-        const shareButton = document.getElementById('share-button'); // Web Share button element
-        const kakaoShareButton = document.getElementById('kakao-share-button'); // Kakao Share button element
-        const resetButton = document.getElementById('reset-button'); // Reset button element
-
-        // Initial mode is implicitly 'upload'
-        // No currentMode variable or switchMode function needed as only one mode exists.
-
-        // Initialize Kakao SDK
-        // Kakao.init should be called outside of async functions
-        // It needs to be called after the SDK script is loaded.
-        if (Kakao && !Kakao.isInitialized()) {
-            Kakao.init('783d4abe65a9e7fd57276ee69d32fc04');
-            console.log('Kakao SDK initialized:', Kakao.isInitialized());
-        }
-
-
-        async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
-
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
-            
-            console.log("Teachable Machine 모델 로드 완료!");
-            // No mode switching needed, directly prepare for upload logic
-        }
-
-        // --- Confetti Function ---
-        function triggerConfetti() {
-            const confettiEmojis = ['💸', '💰']; // Emojis for confetti
-            const defaults = {
-                spread: 360,
-                ticks: 50,
-                gravity: 0.5,
-                decay: 0.94,
-                startVelocity: 30,
-                colors: ['#FFD700', '#C0C0C0', '#DAA520', '#FFFFFF'] // Gold, Silver, Goldenrod, White
-            };
-
-            function fire(particleRatio, opts) {
-                confetti(Object.assign({}, defaults, opts, {
-                    particleCount: Math.floor(200 * particleRatio),
-                    shapes: ['emoji'],
-                    shapeOptions: {
-                        emoji: confettiEmojis
-                    }
-                }));
-            }
-
-            fire(0.25, {
-                spread: 26,
-                startVelocity: 55,
-            });
-            fire(0.2, {
-                spread: 60,
-            });
-            fire(0.35, {
-                spread: 100,
-                decay: 0.91,
-                scalar: 0.8
-            });
-            fire(0.1, {
-                spread: 120,
-                startVelocity: 25,
-                decay: 0.92,
-                scalar: 1.2
-            });
-            fire(0.1, {
-                spread: 120,
-                startVelocity: 45,
-            });
-        }
-
-
-        // --- Reset Function ---
-        function resetResults() {
-            resultText.textContent = '';
-            salaryAmountDisplay.textContent = '';
-            loadingMessage.style.display = 'none'; // Hide spinner
-            shareButton.style.display = 'none';
-            kakaoShareButton.style.display = 'none';
-            resetButton.style.display = 'none'; // Hide reset button
-        }
-        
-        function resetTest() {
-            resetResults();
-            uploadedImage.src = '#'; // Use new image element
-            uploadedImage.style.opacity = '0'; // Start fade out
-            setTimeout(() => { // Wait for fade out to complete before hiding
-                uploadedImage.style.display = 'none'; 
-            }, 500); 
-            checkSalaryButton.disabled = true;
-            // No mode switching needed
-        }
-        resetButton.addEventListener('click', resetTest);
-
-
-        // --- Image Upload Logic ---
-        imageUploadHidden.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImage.src = e.target.result;
-                    uploadedImage.style.display = 'block'; // Use display: block
-                    setTimeout(() => uploadedImage.style.opacity = '1', 10); // Fade in
-                    checkSalaryButton.disabled = false; // Enable button after photo
-                    resetResults(); // Clear previous results and hide share/reset buttons
-                };
-                reader.readAsDataURL(file);
-            } else {
-                uploadedImage.src = '#';
-                uploadedImage.style.opacity = '0'; // Start fade out
-                setTimeout(() => { // Wait for fade out to complete before hiding
-                    uploadedImage.style.display = 'none'; 
-                }, 500);
-                checkSalaryButton.disabled = true;
-                resetResults();
-            }
-        });
-
-        // --- Utility for Random Numbers ---
-        function getRandomInt(min, max) {
-            min = Math.ceil(min);
-            max = Math.floor(max);
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        // --- Utility for Korean Won Formatting ---
-        function formatKoreanWon(amount) {
-            const manUnit = 10000;
-            if (amount >= manUnit) {
-                const millions = Math.floor(amount / manUnit);
-                return `월 ${millions.toLocaleString()}만 원`;
-            } else {
-                return `월 ${amount.toLocaleString()}원`;
-            }
-        }
-
-
-        // --- Prediction Logic ---
-        checkSalaryButton.addEventListener('click', predict);
-
-        async function predict() {
-            if (!uploadedImage.src || uploadedImage.style.display === 'none') { // Check display for prediction
-                alert("먼저 이미지를 업로드하거나 촬영해주세요!");
-                return;
-            }
-
-            loadingMessage.style.display = 'flex'; // Show loading message with spinner
-            resetResults(); // Clear previous results and hide share/reset buttons (except loading itself)
-            checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
-
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
-
-            // Use uploadedImage directly for prediction
-            const prediction = await model.predict(uploadedImage);
-            
-            loadingMessage.style.display = 'none'; // Hide loading message
-            checkSalaryButton.disabled = false; // 버튼 다시 활성화
-
-            let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
-            let salaryAmountNum = 0; // Raw numerical amount
-            let highestProbability = 0;
-            let predictedClass = '';
-
-            for (let i = 0; i < maxPredictions; i++) {
-                if (prediction[i].probability.toFixed(2) > highestProbability) {
-                    highestProbability = prediction[i].probability.toFixed(2);
-                    predictedClass = prediction[i].className;
-                }
-            }
-            
-            switch (predictedClass) {
-                case "Class 1": 
-                case "부자": 
-                    resultMessage = richMessages[Math.floor(Math.random() * richMessages.length)] + " 예상 월급 ";
-                    salaryAmountNum = getRandomInt(8_000_000, 30_000_000); // 월 800만 ~ 3,000만
-                    break;
-                case "Class 2":
-                case "중산층":
-                    resultMessage = middleClassMessages[Math.floor(Math.random() * middleClassMessages.length)] + " 예상 월급 ";
-                    salaryAmountNum = getRandomInt(3_500_000, 6_000_000); // 월 350만 ~ 600만
-                    break;
-                case "Class 3":
-                case "거지":
-                    resultMessage = poorMessages[Math.floor(Math.random() * poorMessages.length)] + " 예상 월급 ";
-                    salaryAmountNum = getRandomInt(2_200_000, 3_000_000); // 월 220만 ~ 300만
-                    break;
-                default:
-                    resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
-                    salaryAmountNum = 0;
-            }
-
-            resultText.innerHTML = resultMessage;
-            if (salaryAmountNum > 0) {
-                salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
-                triggerConfetti(); // Trigger confetti when salary amount is displayed
-
-                // Show share buttons if available
-                if (navigator.share) {
-                    shareButton.style.display = 'block';
-                }
-                if (Kakao.isInitialized()) {
-                    kakaoShareButton.style.display = 'block';
-                }
-                resetButton.style.display = 'block'; // Show reset button after result
-            }
-        }
-
-        // --- Web Share Button Logic ---
-        shareButton.addEventListener('click', async () => {
-            if (navigator.share) {
-                try {
-                    const shareData = {
-                        title: '미래 월급 테스트 결과',
-                        text: `${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
-                        url: window.location.href
-                    };
-                    await navigator.share(shareData);
-                    console.log('Web Share successful');
-                } catch (error) {
-                    console.error('Error sharing via Web Share:', error);
-                    // User might have cancelled the share, or an error occurred
-                }
-            } else {
-                alert('이 브라우저에서는 공유하기 기능을 지원하지 않습니다.');
-                console.log('Web Share API not supported in this browser.');
-            }
-        });
-
-        // --- Kakao Share Function ---
-        function shareKakao() {
-            if (Kakao.isInitialized()) {
-                Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '미래 월급 관상 테스트',
-                        description: `AI가 분석한 내 미래 월급은 ${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
-                        link: {
-                            webUrl: 'https://future-salary-test.pages.dev',
-                        },
-                    },
-
-                });
-            } else {
-                alert('카카오 SDK가 초기화되지 않았습니다.');
-                console.error('Kakao SDK not initialized.');
-            }
-        }
-        kakaoShareButton.addEventListener('click', shareKakao);
-
-        init(); // 페이지 로드 시 모델 초기화
-
         // --- Hamburger Menu Toggle Logic ---
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const closeMenuBtn = document.getElementById('close-menu-btn');

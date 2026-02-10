@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성공하는 사람들의 숨겨진 관상 특징 - 미래 월급 테스트</title>
+    <meta property="og:url" content="https://future-salary-test.pages.dev">
+    <meta property="og:type" content="website">
+    <meta name="description" content="역사 속 성공한 인물들과 현대 리더들의 공통적인 관상 특징을 분석하여, 성공과 관상의 연관성을 조명합니다.">
+    <meta name="keywords" content="성공 관상, 리더십, 재물 관리, 소통 능력, AI 관상 분석">
+    <meta property="og:title" content="성공하는 사람들의 숨겨진 관상 특징">
+    <meta property="og:description" content="역사 속 성공한 인물들과 현대 리더들의 공통적인 관상 특징을 분석하여, 성공과 관상의 연관성을 조명합니다.">
+    <meta property="og:image" content="">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
+    <!-- Kakao SDK -->
+    <script src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KxjrFjzHa5TAoFQ6GbYTCAG0bjM55XohjjDT7tDDC01' crossorigin='anonymous'></script>
+    <style>
+        /* Global & Reset Styles */
+        * {
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 60px; /* Offset for fixed header height */
+        }
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        #main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px; /* Added padding */
+            box-sizing: border-box; /* Added box-sizing */
+        }
+        .header-logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        #hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 24px; /* Adjusted font-size */
+            cursor: pointer; /* Added cursor pointer */
+            color: #333;
+            display: block;
+        }
+
+        /* Mobile Menu Styles */
+        #mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Initially hidden */
+            width: 250px;
+            max-width: 80%; /* Responsive width */
+            height: 100%;
+            background-color: #f8f8f8;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1001;
+            transition: right 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            padding-top: 60px; /* Space below header */
+        }
+        #mobile-menu.open {
+            right: 0; /* Slide in */
+        }
+        #close-menu-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #333;
+            display: block; /* Ensure it's visible */
+        }
+        #mobile-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #mobile-menu li {
+            border-bottom: 1px solid #eee; /* Separator for menu items */
+        }
+        #mobile-menu li:last-child {
+            border-bottom: none;
+        }
+        .menu-item {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 1.1em;
+        }
+        .menu-item:hover {
+            background-color: #e9e9e9;
+        }
+        
+        /* Main Content Container (redefined for layout reset) */
+        .container { /* This targets #home-section */
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            max-width: 600px; /* User specified */
+            width: 100%;
+            display: flex; /* For internal flex layout */
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 80px auto 0; /* User specified margin-top for header offset + auto for centering */
+            position: relative; /* For z-index or other positioning if needed */
+        }
+
+        /* General element styles (previously inline or in original .container) */
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 900;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .mode-button {
+            background: #f0f2f5;
+            color: #555;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mode-button.active, .mode-button:hover {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* File Upload Styles */
+        .file-upload-wrapper {
+            width: 100%;
+            position: relative;
+        }
+        .file-upload-label {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #66BB6A);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .file-upload-label:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        #image-upload {
+            display: none;
+        }
+
+        /* Webcam Styles */
+        #webcam-view {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            display: none;
+        }
+        #webcam-button {
+            background: linear-gradient(45deg, #FFC107, #FFA000);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 250px;
+            display: none;
+        }
+        #webcam-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 250px;
+            height: auto;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            object-fit: contain;
+            margin-top: 15px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #check-salary-button, #share-button {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+        #kakao-share-button, #reset-button {
+            background-color: #FEE500;
+            color: #3C1E1E;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 300px;
+            margin-top: 10px;
+        }
+        #share-button {
+            margin-top: 20px;
+        }
+        #check-salary-button:hover, #share-button:hover, #kakao-share-button:hover, #reset-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        #check-salary-button:disabled {
+            background: linear-gradient(45deg, #cccccc, #aaaaaa);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        #loading-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #555;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            display: none; 
+        }
+        /* CSS Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #result-text {
+            font-size: 2.2em;
+            font-weight: 900;
+            color: #2c3e50;
+            margin-top: 30px;
+            word-break: keep-all;
+            line-height: 1.4;
+        }
+        #salary-amount {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        /* Footer Styles */
+        #footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #777;
+        }
+        #footer p {
+            margin-bottom: 10px;
+        }
+        #footer a {
+            color: #777;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        #footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            #main-header {
+                padding: 0 15px;
+            }
+            .header-logo {
+                font-size: 1.3em;
+            }
+            #hamburger-btn {
+                font-size: 1.8em;
+            }
+            #mobile-menu {
+                width: 70%; /* Adjust width for smaller screens */
+            }
+            .container { /* Specific adjustment for main content container */
+                 margin-top: 70px; /* A bit more top margin for smaller screens */
+            }
+        }
+        /* Card Link Buttons */
+        .card-link-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 40px auto 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .card-link {
+            display: block;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px 25px;
+            text-decoration: none;
+            color: #333;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-link::after {
+            content: '>';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            color: #007bff;
+            transition: right 0.3s ease;
+        }
+
+        .card-link:hover::after {
+            right: 15px;
+        }
+
+        /* Section for additional text */
+        .info-section {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: left;
+            color: #333;
+        }
+        .info-section h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+        .info-section h3 {
+            font-size: 1.3em;
+            color: #0056b3;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .info-section p {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .info-section p:last-child {
+            margin-bottom: 0;
+        }
+        /* Blog List Styles */
+        .blog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .blog-article-summary {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            text-align: left;
+            transition: transform 0.2s ease;
+        }
+
+        .blog-article-summary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-article-summary h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .blog-article-summary h3 a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .blog-article-summary h3 a:hover {
+            text-decoration: underline;
+        }
+
+        .blog-article-summary p {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.5;
+        }
+    </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8318272387440643"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-logo">미래 월급 테스트</div>
+        <button id="hamburger-btn">☰</button>
+    </header>
+
+    <!-- Slide-in Menu -->
+    <nav id="mobile-menu">
+        <button id="close-menu-btn">X</button>
+        <ul>
+            <li><a href="index.html" class="menu-item">홈으로</a></li>
+            <li><a href="column.html" class="menu-item">관상학 칼럼</a></li>
+            <li><a href="about.html" class="menu-item">서비스 소개</a></li>
+            <li><a href="blog.html" class="menu-item">블로그</a></li>
+            <li><a href="#footer" class="menu-item">문의하기</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main content for post-4.html starts here -->
+    <div id="post-content" class="container">
+        <h1>성공하는 사람들의 숨겨진 관상 특징</h1>
+        
+        <p>
+            성공하는 사람들의 얼굴에는 어떤 공통점이 있을까요? 관상학에서는 특정 얼굴 특징들이 개인의 성공 가능성과 깊은 관련이 있다고 봅니다. 이는 단순히 외모가 출중하다는 의미가 아니라, 성공적인 삶을 이끌어가는 데 필요한 성격, 기질, 능력을 반영하는 신체적 특징들을 의미합니다. AI 관상 분석은 이러한 전통적인 지혜를 현대적인 데이터 분석으로 검증하고, 성공하는 사람들의 숨겨진 관상학적 패턴을 찾아냅니다.
+        </p>
+
+        <h3>1. 넓고 훤한 이마: 비전과 통찰력의 상징</h3>
+        <p>
+            성공한 인물들의 이마는 대개 넓고 훤하며 주름이 적고 깨끗합니다. 이는 뛰어난 비전과 통찰력, 그리고 넓은 포용력을 의미합니다. 이마는 또한 사회생활과 직업운을 나타내는데, 봉긋하게 솟아오른 이마는 어린 시절부터 총명하고 학업운이 좋으며, 좋은 기회를 잘 포착하여 성공의 발판을 마련합니다. AI는 이마의 면적, 돌출 정도, 피부 상태 등을 분석하여 개인의 사회적 성공 잠재력을 측정합니다.
+        </p>
+
+        <h3>2. 봉황의 눈과 사자의 코: 리더십과 재물 관리 능력</h3>
+        <p>
+            성공하는 사람들은 맑고 깊은 눈빛을 가지고 있으며, 눈동자가 흑백이 분명하고 빛이 납니다. 이러한 '봉황의 눈'은 지혜와 결단력, 사람을 꿰뚫어 보는 통찰력을 상징합니다. 또한 코는 재물을 상징하는데, 크고 곧게 뻗었으면서도 콧방울이 두툼한 '사자의 코'는 강력한 리더십과 함께 재물을 모으고 관리하는 능력이 탁월함을 의미합니다. AI는 눈의 크기, 형태, 눈동자의 특징, 코의 비율과 볼륨 등을 분석하여 리더십과 재물운의 상관관계를 탐색합니다.
+        </p>
+
+        <h3>3. 두툼한 입술과 위로 향한 입꼬리: 뛰어난 소통 능력</h3>
+        <p>
+            입술이 도톰하고 입꼬리가 살짝 위로 올라간 입은 긍정적인 성격과 뛰어난 소통 능력을 나타냅니다. 이러한 특징을 가진 사람들은 대인 관계가 원만하고 언변이 뛰어나 협상이나 설득에 능하며, 주변 사람들의 지지를 받아 성공으로 나아갑니다. 입이 크고 다물어졌을 때 빈틈이 없으면 재물이 잘 새지 않고 안정적으로 유지된다고 봅니다. AI는 입술의 두께, 입꼬리의 각도, 입의 전체적인 형태 등을 분석하여 소통 능력과 성공 가능성을 예측합니다.
+        </p>
+
+        <h3>4. 두툼하고 긴 귓불: 인덕과 장수의 복</h3>
+        <p>
+            성공한 사람들의 귀는 대개 크고 두툼하며 귓불이 길게 늘어져 있습니다. '부처님 귀'라고도 불리는 이러한 귀는 인덕이 많아 주변에 좋은 사람이 따르고, 어려움에 처했을 때 도움을 받을 수 있는 복을 의미합니다. 또한 장수와 건강을 상징하여 오랫동안 자신의 분야에서 활동하며 큰 업적을 남길 수 있음을 암시합니다. AI는 귀의 크기, 형태, 귓불의 두께 등을 분석하여 인덕과 건강운, 그리고 장기적인 성공 가능성을 예측합니다.
+        </p>
+
+        <h3>AI 관상 분석의 한계와 활용</h3>
+        <p>
+            물론 AI 관상 분석은 흥미로운 통계적 경향성을 제시하지만, 개인의 노력과 환경, 그리고 끊임없이 변화하는 시대적 상황을 완전히 반영할 수는 없습니다. 관상학은 맹목적으로 믿기보다는 자기 성찰과 동기 부여의 도구로 활용하는 것이 바람직합니다. AI가 제시하는 데이터는 우리가 자신을 더 잘 이해하고, 부족한 점을 보완하며, 강점을 더욱 발전시키는 데 영감을 줄 수 있습니다. 성공은 타고난 관상으로만 결정되는 것이 아니라, 꾸준한 자기 계발과 긍정적인 태도에서 비롯된다는 점을 기억해야 합니다.
+        </p>
+    </div>
+    <!-- Main content for post-4.html ends here -->
+
+    <footer id="footer">
+        <p>&copy; 2026 미래 월급 테스트. All rights reserved.</p>
+        <p>
+            <a href="terms.html">이용약관</a> |
+            <a href="privacy.html">개인정보처리방침</a> |
+            <a href="mailto:rkd743194@gmail.com">문의하기</a>
+        </p>
+    </footer>
+
+    <script type="text/javascript">
+        // --- Hamburger Menu Toggle Logic ---
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuItems = document.querySelectorAll('#mobile-menu .menu-item');
+
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+
+        closeMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                mobileMenu.classList.remove('open'); // Close menu on item click
+            });
+        });
+    </script>
+</body>
+</html>
