@@ -2,445 +2,29 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NP97WXZD');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>블로그 - 미래 월급 테스트</title>
-    <meta property="og:url" content="https://future-salary-test.pages.dev">
-    <meta property="og:type" content="website">
-    <meta name="description" content="AI가 당신의 미래 월급을 예측해드립니다. 무료 관상 테스트를 통해 당신의 운명적인 연봉을 확인하고, 재물운을 높이는 관상학 칼럼을 확인하세요.">
-    <meta name="keywords" content="무료 관상 테스트, AI 연봉 예측, 미래 월급, 관상학, 재물운, 운명, 셀카 관상, 얼굴 분석, 연봉 테스트">
-    <meta property="og:title" content="AI 미래 월급 테스트">
-    <meta property="og:description" content="내 관상으로 보는 미래 연봉은 얼마일까? 지금 바로 확인하세요!">
-    <meta property="og:image" content="">
+    <title>AI 관상 연구소</title>
+    <meta name="description" content="미래 월급 테스트 AI 관상 연구소 블로그입니다. 재물운, AI 관상 분석, 성공하는 얼굴 특징 등 관상학 관련 전문 칼럼을 만나보세요.">
+    <meta name="keywords" content="AI 관상 연구소, 블로그, 관상학, 재물운, AI 분석, 얼굴 특징, 칼럼, 미래 월급">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
     <!-- Kakao SDK -->
     <script src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KxjrFjzHa5TAoFQ6GbYTCAG0bjM55XohjjDT7tDDC01' crossorigin='anonymous'></script>
-    <style>
-        /* Global & Reset Styles */
-        * {
-            box-sizing: border-box;
-        }
-        html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 60px; /* Offset for fixed header height */
-        }
-        body {
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            text-align: center;
-            line-height: 1.6;
-        }
+    <link rel="stylesheet" href="style.css">
 
-        /* Header Styles */
-        #main-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            z-index: 1000;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px; /* Added padding */
-            box-sizing: border-box; /* Added box-sizing */
-        }
-        .header-logo {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-        }
-        #hamburger-btn {
-            background: none;
-            border: none;
-            font-size: 24px; /* Adjusted font-size */
-            cursor: pointer; /* Added cursor pointer */
-            color: #333;
-            display: block;
-        }
-
-        /* Mobile Menu Styles */
-        #mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%; /* Initially hidden */
-            width: 250px;
-            max-width: 80%; /* Responsive width */
-            height: 100%;
-            background-color: #f8f8f8;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-            z-index: 1001;
-            transition: right 0.3s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            padding-top: 60px; /* Space below header */
-        }
-        #mobile-menu.open {
-            right: 0; /* Slide in */
-        }
-        #close-menu-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 2em;
-            cursor: pointer;
-            color: #333;
-            display: block; /* Ensure it's visible */
-        }
-        #mobile-menu ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        #mobile-menu li {
-            border-bottom: 1px solid #eee; /* Separator for menu items */
-        }
-        #mobile-menu li:last-child {
-            border-bottom: none;
-        }
-        .menu-item {
-            display: block;
-            padding: 15px 20px;
-            text-decoration: none;
-            color: #333;
-            font-size: 1.1em;
-        }
-        .menu-item:hover {
-            background-color: #e9e9e9;
-        }
-        
-        /* Main Content Container (redefined for layout reset) */
-        .container { /* This targets #home-section */
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            max-width: 600px; /* User specified */
-            width: 100%;
-            display: flex; /* For internal flex layout */
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin: 80px auto 0; /* User specified margin-top for header offset + auto for centering */
-            position: relative; /* For z-index or other positioning if needed */
-        }
-
-        /* General element styles (previously inline or in original .container) */
-        h1 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 2.5em;
-            font-weight: 900;
-        }
-        .mode-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .mode-button {
-            background: #f0f2f5;
-            color: #555;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .mode-button.active, .mode-button:hover {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .input-section {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* File Upload Styles */
-        .file-upload-wrapper {
-            width: 100%;
-            position: relative;
-        }
-        .file-upload-label {
-            display: inline-block;
-            background: linear-gradient(45deg, #4CAF50, #66BB6A);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .file-upload-label:hover {
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            transform: translateY(-2px);
-        }
-        #image-upload {
-            display: none;
-        }
-
-        /* Webcam Styles */
-        #webcam-view {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-            display: none;
-        }
-        #webcam-button {
-            background: linear-gradient(45deg, #FFC107, #FFA000);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 250px;
-            display: none;
-        }
-        #webcam-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        #image-preview {
-            max-width: 100%;
-            max-height: 250px;
-            height: auto;
-            border-radius: 10px;
-            border: 2px dashed #ddd;
-            object-fit: contain;
-            margin-top: 15px;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        #check-salary-button, #share-button {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 300px;
-            margin-top: 20px;
-        }
-        #kakao-share-button, #reset-button {
-            background-color: #FEE500;
-            color: #3C1E1E;
-            border: none;
-            border-radius: 25px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 300px;
-            margin-top: 10px;
-        }
-        #share-button {
-            margin-top: 20px;
-        }
-        #check-salary-button:hover, #share-button:hover, #kakao-share-button:hover, #reset-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        #check-salary-button:disabled {
-            background: linear-gradient(45deg, #cccccc, #aaaaaa);
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-        
-        #loading-message {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #555;
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            display: none; 
-        }
-        /* CSS Spinner */
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #result-text {
-            font-size: 2.2em;
-            font-weight: 900;
-            color: #2c3e50;
-            margin-top: 30px;
-            word-break: keep-all;
-            line-height: 1.4;
-        }
-        #salary-amount {
-            font-size: 2.8em;
-            font-weight: bold;
-            color: #007bff;
-            margin-top: 10px;
-        }
-
-        /* Footer Styles */
-        #footer {
-            margin-top: 40px;
-            padding: 20px;
-            text-align: center;
-            font-size: 0.85em;
-            color: #777;
-        }
-        #footer p {
-            margin-bottom: 10px;
-        }
-        #footer a {
-            color: #777;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        #footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            #main-header {
-                padding: 0 15px;
-            }
-            .header-logo {
-                font-size: 1.3em;
-            }
-            #hamburger-btn {
-                font-size: 1.8em;
-            }
-            #mobile-menu {
-                width: 70%; /* Adjust width for smaller screens */
-            }
-            .container { /* Specific adjustment for main content container */
-                 margin-top: 70px; /* A bit more top margin for smaller screens */
-            }
-        }
-        /* Card Link Buttons */
-        .card-link-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 40px auto 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 0 20px;
-        }
-
-        .card-link {
-            display: block;
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            padding: 20px 25px;
-            text-decoration: none;
-            color: #333;
-            font-size: 1.3em;
-            font-weight: bold;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-link:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-link::after {
-            content: '>';
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2em;
-            color: #007bff;
-            transition: right 0.3s ease;
-        }
-
-        .card-link:hover::after {
-            right: 15px;
-        }
-
-        /* Section for additional text */
-        .info-section {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 25px;
-            background-color: #f8f9fa;
-            border-radius: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            text-align: left;
-            color: #333;
-        }
-        .info-section h2 {
-            font-size: 1.8em;
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 700;
-        }
-        .info-section h3 {
-            font-size: 1.3em;
-            color: #0056b3;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .info-section p {
-            font-size: 0.95em;
-            line-height: 1.6;
-            color: #555;
-            margin-bottom: 15px;
-        }
-        .info-section p:last-child {
-            margin-bottom: 0;
-        }
-    </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8318272387440643"
      crossorigin="anonymous"></script>
 </head>
 <body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NP97WXZD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <header id="main-header">
         <a href="index.html" class="header-logo">미래 월급 테스트</a>
         <button id="hamburger-btn">☰</button>
@@ -451,41 +35,75 @@
         <button id="close-menu-btn">X</button>
         <ul>
             <li><a href="index.html" class="menu-item">홈으로</a></li>
-            <li><a href="column.html" class="menu-item">관상학 칼럼</a></li>
+            <li><a href="blog.html" class="menu-item">연구소</a></li>
             <li><a href="about.html" class="menu-item">서비스 소개</a></li>
-            <li><a href="blog.html" class="menu-item">블로그</a></li>
-            <li><a href="#footer" class="menu-item">문의하기</a></li>
+            <li><a href="contact.html" class="menu-item">문의하기</a></li>
         </ul>
     </nav>
 
-    <!-- Main content for blog.html starts here -->
-    <div id="blog-list-section" class="container">
-        <h1>블로그 📝</h1>
-        <div class="blog-list">
-            <!-- Blog posts will be dynamically loaded or listed here -->
-            <div class="blog-article-summary">
-                <h3><a href="post-1.html">관상학, 역사의 거울에 비친 인간의 욕망</a></h3>
-                <p>수천 년간 이어져 온 관상학의 흥미로운 역사와 시대별 변화, 그리고 현대 사회에 미치는 영향에 대해 알아봅니다.</p>
-            </div>
-            <div class="blog-article-summary">
-                <h3><a href="post-2.html">재물운을 부르는 얼굴 특징: AI는 무엇을 볼까?</a></h3>
-                <p>재물운과 관련된 관상학적 특징들을 살펴보고, AI가 이러한 특징들을 어떻게 분석하고 해석하는지 깊이 있게 다룹니다.</p>
-            </div>
-            <div class="blog-article-summary">
-                <h3><a href="post-3.html">AI 관상 분석, 단순한 재미를 넘어선 과학적 접근</a></h3>
-                <p>AI 기술이 관상 분석에 어떻게 적용되는지, 그리고 방대한 통계 데이터를 통해 어떤 인사이트를 얻을 수 있는지 탐구합니다.</p>
-            </div>
-            <div class="blog-article-summary">
-                <h3><a href="post-4.html">성공하는 사람들의 숨겨진 관상 특징</a></h3>
-                <p>역사 속 성공한 인물들과 현대 리더들의 공통적인 관상 특징을 분석하여, 성공과 관상의 연관성을 조명합니다.</p>
-            </div>
-            <div class="blog-article-summary">
-                <h3><a href="post-5.html">미래를 예측하는 AI: 관상학의 새로운 지평</a></h3>
-                <p>인공지능과 관상학의 만남이 가져올 미래에 대한 전망과 함께, 더욱 발전할 AI 관상 분석 기술의 가능성을 논합니다.</p>
-            </div>
+    <div class="container blog-list-container" style="margin-top: 80px;">
+        <h1>AI 관상 연구소</h1>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-1.html">재물운의 과학: 관상으로 보는 성공적인 재물 관리 전략</a></h2>
+            <p>관상학이 말하는 재물운의 과학적 접근 방식과 성공적인 재물 관리를 위한 관상학적 통찰을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-2.html">AI가 보는 관상: 인공지능 시대의 얼굴 분석과 미래 예측</a></h2>
+            <p>인공지능이 관상학적 특징을 어떻게 분석하고 미래를 예측하는지 탐구합니다. AI 기반 얼굴 분석 기술의 원리와 활용 가능성, 그리고 한계를 살펴봅니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-3.html">성공하는 얼굴 특징: 관상학으로 본 리더의 조건</a></h2>
+            <p>관상학적 관점에서 성공하는 사람들과 리더들이 공통적으로 가지는 얼굴 특징들을 분석합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-4.html">얼굴의 황금비율: 매력적인 인상이 주는 심리적 효과</a></h2>
+            <p>얼굴의 황금비율이 사람의 인상과 심리에 미치는 영향을 탐구합니다. 매력적인 얼굴이 사회생활과 성공에 기여하는 바를 관상학적, 심리학적으로 분석합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-5.html">눈썹 관상: 성공과 인간관계를 좌우하는 눈썹의 비밀</a></h2>
+            <p>관상학에서 눈썹이 의미하는 바를 심층 분석합니다. 눈썹의 모양, 길이, 진하기가 성격, 성공, 인간관계에 미치는 영향과 운명을 개선하는 방법을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-6.html">코 관상: 재물운의 핵심, 복을 부르는 코의 조건</a></h2>
+            <p>관상학에서 코가 재물운에 미치는 영향을 집중 분석합니다. 이상적인 코의 모양과 특징을 알아보고, 코 관상을 통해 재물운을 상승시키는 방법을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-7.html">입술 관상: 복록과 소통 능력을 나타내는 입의 비밀</a></h2>
+            <p>관상학에서 입술이 복록, 소통 능력, 재물운에 미치는 영향을 분석합니다. 이상적인 입술의 모양과 특징을 알아보고, 입술 관상을 통해 삶의 질을 높이는 방법을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-8.html">턱 관상: 말년운과 리더십을 결정하는 턱의 의미</a></h2>
+            <p>관상학에서 턱이 말년운, 의지력, 리더십에 미치는 영향을 분석합니다. 이상적인 턱의 모양과 특징을 알아보고, 턱 관상을 통해 안정적인 노년과 성공적인 삶을 준비하는 방법을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-9.html">이마 관상: 초년운과 지혜를 나타내는 이마의 의미</a></h2>
+            <p>관상학에서 이마가 초년운, 지혜, 학업운에 미치는 영향을 분석합니다. 이상적인 이마의 모양과 특징을 알아보고, 이마 관상을 통해 지혜롭고 성공적인 삶을 준비하는 방법을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
+        </div>
+
+        <div class="blog-post-card">
+            <h2><a href="blog/post-10.html">귀 관상: 재물운과 인복을 부르는 귀의 형태</a></h2>
+            <p>관상학에서 귀가 재물운, 인복, 건강에 미치는 영향을 분석합니다. 이상적인 귀의 모양과 특징을 알아보고, 귀 관상을 통해 풍요롭고 행복한 삶을 만드는 방법을 탐구합니다.</p>
+            <p class="post-date">작성일: 2026년 2월 11일</p>
         </div>
     </div>
-    <!-- Main content for blog.html ends here -->
 
     <footer id="footer">
         <p>&copy; 2026 미래 월급 테스트. All rights reserved.</p>
@@ -496,26 +114,6 @@
         </p>
     </footer>
 
-    <script type="text/javascript">
-        // --- Hamburger Menu Toggle Logic ---
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const closeMenuBtn = document.getElementById('close-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuItems = document.querySelectorAll('#mobile-menu .menu-item');
-
-        hamburgerBtn.addEventListener('click', () => {
-            mobileMenu.classList.add('open');
-        });
-
-        closeMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.remove('open');
-        });
-
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                mobileMenu.classList.remove('open'); // Close menu on item click
-            });
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

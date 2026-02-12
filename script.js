@@ -22,53 +22,22 @@ const poorMessages = [
     '로또 당첨을 노려보세요'
 ];
 let model, maxPredictions;
-let webcamStream = null; // No longer used, but keeping for now as a placeholder for removed content, will delete in next step
+let webcamStream = null;
 
-// DOM elements
-const openFileDialogButton = document.getElementById('open-file-dialog-button'); // New button
-const imageUploadHidden = document.getElementById('image-upload-hidden'); // New hidden input
-const uploadedImage = document.getElementById('uploaded-image'); // New image preview
-const checkSalaryButton = document.getElementById('check-salary-button');
-const loadingMessage = document.getElementById('loading-message');
-const resultText = document.getElementById('result-text');
-const salaryAmountDisplay = document.getElementById('salary-amount'); // New element
-const shareButton = document.getElementById('share-button'); // Web Share button element
-const kakaoShareButton = document.getElementById('kakao-share-button'); // Kakao Share button element
-const resetButton = document.getElementById('reset-button'); // Reset button element
-
-// Initial mode is implicitly 'upload'
-// No currentMode variable or switchMode function needed as only one mode exists.
-
-// Initialize Kakao SDK
-// Kakao.init should be called outside of async functions
-// It needs to be called after the SDK script is loaded.
-if (Kakao && !Kakao.isInitialized()) {
-    Kakao.init('783d4abe65a9e7fd57276ee69d32fc04');
-    console.log('Kakao SDK initialized:', Kakao.isInitialized());
-}
-
-
-async function init() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-
-    model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-    
-    console.log("Teachable Machine 모델 로드 완료!");
-    // No mode switching needed, directly prepare for upload logic
-}
+// DOM elements - 선언만 전역으로 하고, 할당은 DOMContentLoaded 안에서.
+let openFileDialogButton, imageUploadHidden, uploadedImage, checkSalaryButton, loadingMessage,
+    resultText, salaryAmountDisplay, shareButton, kakaoShareButton, resetButton;
 
 // --- Confetti Function ---
 function triggerConfetti() {
-    const confettiEmojis = ['💸', '💰']; // Emojis for confetti
+    const confettiEmojis = ['💸', '💰'];
     const defaults = {
         spread: 360,
         ticks: 50,
         gravity: 0.5,
         decay: 0.94,
         startVelocity: 30,
-        colors: ['#FFD700', '#C0C0C0', '#DAA520', '#FFFFFF'] // Gold, Silver, Goldenrod, White
+        colors: ['#FFD700', '#C0C0C0', '#DAA520', '#FFFFFF']
     };
 
     function fire(particleRatio, opts) {
@@ -81,77 +50,36 @@ function triggerConfetti() {
         }));
     }
 
-    fire(0.25, {
-        spread: 26,
-        startVelocity: 55,
-    });
-    fire(0.2, {
-        spread: 60,
-    });
-    fire(0.35, {
-        spread: 100,
-        decay: 0.91,
-        scalar: 0.8
-    });
-    fire(0.1, {
-        spread: 120,
-        startVelocity: 25,
-        decay: 0.92,
-        scalar: 1.2
-    });
-    fire(0.1, {
-        spread: 120,
-        startVelocity: 45,
-    });
+    fire(0.25, { spread: 26, startVelocity: 55 });
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+    fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+    fire(0.1, { spread: 120, startVelocity: 45 });
 }
 
 
 // --- Reset Function ---
 function resetResults() {
-    resultText.textContent = '';
-    salaryAmountDisplay.textContent = '';
-    loadingMessage.style.display = 'none'; // Hide spinner
-    shareButton.style.display = 'none';
-    kakaoShareButton.style.display = 'none';
-    resetButton.style.display = 'none'; // Hide reset button
+    if (resultText) resultText.textContent = '';
+    if (salaryAmountDisplay) salaryAmountDisplay.textContent = '';
+    if (loadingMessage) loadingMessage.style.display = 'none';
+    if (shareButton) shareButton.style.display = 'none';
+    if (kakaoShareButton) kakaoShareButton.style.display = 'none';
+    if (resetButton) resetButton.style.display = 'none';
 }
 
 function resetTest() {
     resetResults();
-    uploadedImage.src = '#'; // Use new image element
-    uploadedImage.style.opacity = '0'; // Start fade out
-    setTimeout(() => { // Wait for fade out to complete before hiding
-        uploadedImage.style.display = 'none'; 
-    }, 500); 
-    checkSalaryButton.disabled = true;
-    // No mode switching needed
-}
-resetButton.addEventListener('click', resetTest);
-
-
-// --- Image Upload Logic ---
-imageUploadHidden.addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            uploadedImage.src = e.target.result;
-            uploadedImage.style.display = 'block'; // Use display: block
-            setTimeout(() => uploadedImage.style.opacity = '1', 10); // Fade in
-            checkSalaryButton.disabled = false; // Enable button after photo
-            resetResults(); // Clear previous results and hide share/reset buttons
-        };
-        reader.readAsDataURL(file);
-    } else {
+    if (uploadedImage) {
         uploadedImage.src = '#';
-        uploadedImage.style.opacity = '0'; // Start fade out
-        setTimeout(() => { // Wait for fade out to complete before hiding
-            uploadedImage.style.display = 'none'; 
+        uploadedImage.style.opacity = '0';
+        setTimeout(() => {
+            uploadedImage.style.display = 'none';
         }, 500);
-        checkSalaryButton.disabled = true;
-        resetResults();
     }
-});
+    if (checkSalaryButton) checkSalaryButton.disabled = true;
+}
+
 
 // --- Utility for Random Numbers ---
 function getRandomInt(min, max) {
@@ -171,30 +99,26 @@ function formatKoreanWon(amount) {
     }
 }
 
-
 // --- Prediction Logic ---
-checkSalaryButton.addEventListener('click', predict);
-
 async function predict() {
-    if (!uploadedImage.src || uploadedImage.style.display === 'none') { // Check display for prediction
+    if (!uploadedImage || !uploadedImage.src || uploadedImage.style.display === 'none') {
         alert("먼저 이미지를 업로드하거나 촬영해주세요!");
         return;
     }
 
-    loadingMessage.style.display = 'flex'; // Show loading message with spinner
-    resetResults(); // Clear previous results and hide share/reset buttons (except loading itself)
-    checkSalaryButton.disabled = true; // 분석 중에는 버튼 비활성화
+    if (loadingMessage) loadingMessage.style.display = 'flex';
+    resetResults();
+    if (checkSalaryButton) checkSalaryButton.disabled = true;
 
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Use uploadedImage directly for prediction
     const prediction = await model.predict(uploadedImage);
     
-    loadingMessage.style.display = 'none'; // Hide loading message
-    checkSalaryButton.disabled = false; // 버튼 다시 활성화
+    if (loadingMessage) loadingMessage.style.display = 'none';
+    if (checkSalaryButton) checkSalaryButton.disabled = false;
 
     let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
-    let salaryAmountNum = 0; // Raw numerical amount
+    let salaryAmountNum = 0;
     let highestProbability = 0;
     let predictedClass = '';
 
@@ -206,44 +130,43 @@ async function predict() {
     }
     
     switch (predictedClass) {
-        case "Class 1": 
-        case "부자": 
+        case "Class 1":
+        case "부자":
             resultMessage = richMessages[Math.floor(Math.random() * richMessages.length)] + " 예상 월급 ";
-            salaryAmountNum = getRandomInt(8_000_000, 30_000_000); // 월 800만 ~ 3,000만
+            salaryAmountNum = getRandomInt(8_000_000, 30_000_000);
             break;
         case "Class 2":
         case "중산층":
             resultMessage = middleClassMessages[Math.floor(Math.random() * middleClassMessages.length)] + " 예상 월급 ";
-            salaryAmountNum = getRandomInt(3_500_000, 6_000_000); // 월 350만 ~ 600만
+            salaryAmountNum = getRandomInt(3_500_000, 6_000_000);
             break;
         case "Class 3":
         case "거지":
             resultMessage = poorMessages[Math.floor(Math.random() * poorMessages.length)] + " 예상 월급 ";
-            salaryAmountNum = getRandomInt(2_200_000, 3_000_000); // 월 220만 ~ 300만
+            salaryAmountNum = getRandomInt(2_200_000, 3_000_000);
             break;
         default:
             resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
             salaryAmountNum = 0;
     }
 
-    resultText.innerHTML = resultMessage;
+    if (resultText) resultText.innerHTML = resultMessage;
     if (salaryAmountNum > 0) {
-        salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
-        triggerConfetti(); // Trigger confetti when salary amount is displayed
+        if (salaryAmountDisplay) salaryAmountDisplay.textContent = formatKoreanWon(salaryAmountNum);
+        triggerConfetti();
 
-        // Show share buttons if available
-        if (navigator.share) {
+        if (navigator.share && shareButton) {
             shareButton.style.display = 'block';
         }
-        if (Kakao.isInitialized()) {
+        if (typeof Kakao !== 'undefined' && Kakao.isInitialized() && kakaoShareButton) {
             kakaoShareButton.style.display = 'block';
         }
-        resetButton.style.display = 'block'; // Show reset button after result
+        if (resetButton) resetButton.style.display = 'block';
     }
 }
 
 // --- Web Share Button Logic ---
-shareButton.addEventListener('click', async () => {
+async function handleWebShare() {
     if (navigator.share) {
         try {
             const shareData = {
@@ -255,17 +178,16 @@ shareButton.addEventListener('click', async () => {
             console.log('Web Share successful');
         } catch (error) {
             console.error('Error sharing via Web Share:', error);
-            // User might have cancelled the share, or an error occurred
         }
     } else {
         alert('이 브라우저에서는 공유하기 기능을 지원하지 않습니다.');
         console.log('Web Share API not supported in this browser.');
     }
-});
+}
 
 // --- Kakao Share Function ---
 function shareKakao() {
-    if (Kakao.isInitialized()) {
+    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
@@ -275,33 +197,129 @@ function shareKakao() {
                     webUrl: 'https://future-salary-test.pages.dev',
                 },
             },
-
         });
     } else {
         alert('카카오 SDK가 초기화되지 않았습니다.');
-        console.error('Kakao SDK not initialized.');
+        console.error('Kakao SDK not initialized or not available.');
     }
 }
-kakaoShareButton.addEventListener('click', shareKakao);
 
-init(); // 페이지 로드 시 모델 초기화
 
-// --- Hamburger Menu Toggle Logic ---
-const hamburgerBtn = document.getElementById('hamburger-btn');
-const closeMenuBtn = document.getElementById('close-menu-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-const menuItems = document.querySelectorAll('#mobile-menu .menu-item');
+// Teachable Machine model init
+async function initTeachableMachine() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
 
-hamburgerBtn.addEventListener('click', () => {
-    mobileMenu.classList.add('open');
-});
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+    
+    console.log("Teachable Machine 모델 로드 완료!");
+}
 
-closeMenuBtn.addEventListener('click', () => {
-    mobileMenu.classList.remove('open');
-});
 
-menuItems.forEach(item => {
-    item.addEventListener('click', () => {
-        mobileMenu.classList.remove('open'); // Close menu on item click
-    });
+// All DOM-related interactions and event listeners should be inside DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Assign DOM elements inside DOMContentLoaded
+    openFileDialogButton = document.getElementById('open-file-dialog-button');
+    imageUploadHidden = document.getElementById('image-upload-hidden');
+    uploadedImage = document.getElementById('uploaded-image');
+    checkSalaryButton = document.getElementById('check-salary-button');
+    loadingMessage = document.getElementById('loading-message');
+    resultText = document.getElementById('result-text');
+    salaryAmountDisplay = document.getElementById('salary-amount');
+    shareButton = document.getElementById('share-button');
+    kakaoShareButton = document.getElementById('kakao-share-button');
+    resetButton = document.getElementById('reset-button');
+
+    // Initialize Kakao SDK (moved here)
+    if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+        Kakao.init('783d4abe65a9e7fd57276ee69d32fc04');
+        console.log('Kakao SDK initialized:', Kakao.isInitialized());
+    }
+
+    // --- Hamburger Menu Toggle Logic ---
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuItems = document.querySelectorAll('#mobile-menu .menu-item');
+
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', () => {
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('open');
+            }
+        });
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', () => {
+            if (mobileMenu) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+    }
+
+    if (menuItems) {
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (mobileMenu) {
+                    mobileMenu.classList.remove('open');
+                }
+            });
+        });
+    }
+
+    // --- Event Listeners for main functionality (index.html specific) ---
+    // These elements might not exist on all pages, so robust checks are important.
+    if (imageUploadHidden) {
+        imageUploadHidden.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (uploadedImage) {
+                        uploadedImage.src = e.target.result;
+                        uploadedImage.style.display = 'block';
+                        setTimeout(() => uploadedImage.style.opacity = '1', 10);
+                    }
+                    if (checkSalaryButton) checkSalaryButton.disabled = false;
+                    resetResults();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                if (uploadedImage) {
+                    uploadedImage.src = '#';
+                    uploadedImage.style.opacity = '0';
+                    setTimeout(() => {
+                        uploadedImage.style.display = 'none';
+                    }, 500);
+                }
+                if (checkSalaryButton) checkSalaryButton.disabled = true;
+                resetResults();
+            }
+        });
+    }
+
+    if (checkSalaryButton) {
+        checkSalaryButton.addEventListener('click', predict);
+    }
+
+    if (shareButton) {
+        shareButton.addEventListener('click', handleWebShare);
+    }
+
+    if (kakaoShareButton) {
+        kakaoShareButton.addEventListener('click', shareKakao);
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener('click', resetTest);
+    }
+
+    // Initialize Teachable Machine model for index.html
+    // This should only run on index.html where the functionality is present.
+    // So, guard this call.
+    if (document.getElementById('home-section')) { // 'home-section' is unique to index.html
+        initTeachableMachine();
+    }
 });

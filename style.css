@@ -427,3 +427,132 @@ h1 {
     line-height: 1.5;
     text-align: center;
 }
+/* Contact Form Styles */
+.contact-form-container {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: left;
+}
+.contact-form-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 2em;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+.submit-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.submit-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.mailto-link-container {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 1.1em;
+}
+.mailto-link-container a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+.mailto-link-container a:hover {
+    text-decoration: underline;
+}
+/* Blog List Styles */
+.blog-list-container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: left;
+}
+.blog-list-container h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #333;
+    font-size: 2.5em;
+}
+.blog-post-card {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.blog-post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.blog-post-card h2 {
+    font-size: 1.8em;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+.blog-post-card h2 a {
+    color: #007bff;
+    text-decoration: none;
+}
+.blog-post-card h2 a:hover {
+    text-decoration: underline;
+}
+.blog-post-card p {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.6;
+}
+.blog-post-card .post-date {
+    font-size: 0.85em;
+    color: #999;
+    text-align: right;
+    margin-top: 15px;
+}
