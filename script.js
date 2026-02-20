@@ -120,6 +120,10 @@ function getShareConfig() {
     return SHARE_CONFIGS[currentShareKey] || SHARE_CONFIGS.default;
 }
 
+function buildShareUrl(path) {
+    return `${SITE_URL}${path}`;
+}
+
 function resolveShareKey(predictedClass) {
     switch (predictedClass) {
         case "Class 1":
@@ -241,10 +245,11 @@ async function handleWebShare() {
     if (navigator.share) {
         try {
             const shareConfig = getShareConfig();
+            const shareUrl = buildShareUrl(shareConfig.path);
             const shareData = {
                 title: shareConfig.title,
                 text: `${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
-                url: `${SITE_URL}${shareConfig.path}`
+                url: shareUrl
             };
             await navigator.share(shareData);
             console.log('Web Share successful');
@@ -261,6 +266,8 @@ async function handleWebShare() {
 function shareKakao() {
     if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
         const shareConfig = getShareConfig();
+        const shareUrl = buildShareUrl(shareConfig.path);
+        const homeUrl = buildShareUrl("/index.html");
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
@@ -268,10 +275,26 @@ function shareKakao() {
                 description: `AI가 분석한 내 미래 월급은 ${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
                 imageUrl: `${SITE_URL}${shareConfig.image}`,
                 link: {
-                    mobileWebUrl: `${SITE_URL}${shareConfig.path}`,
-                    webUrl: `${SITE_URL}${shareConfig.path}`
+                    mobileWebUrl: shareUrl,
+                    webUrl: shareUrl
                 },
             },
+            buttons: [
+                {
+                    title: '결과 확인하기',
+                    link: {
+                        mobileWebUrl: shareUrl,
+                        webUrl: shareUrl
+                    }
+                },
+                {
+                    title: '테스트 하러가기',
+                    link: {
+                        mobileWebUrl: homeUrl,
+                        webUrl: homeUrl
+                    }
+                }
+            ]
         });
     } else {
         alert('카카오 SDK가 초기화되지 않았습니다.');
