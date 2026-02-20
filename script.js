@@ -1,4 +1,34 @@
 const URL = "https://teachablemachine.withgoogle.com/models/OgIgQ0pYA/";
+const TFJS_CDN = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js";
+const TM_IMAGE_CDN = "https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js";
+const SITE_URL = "https://future-salary-test.pages.dev";
+
+const SHARE_CONFIGS = {
+    rich: {
+        title: "미래 월급 테스트 결과: 부자 관상",
+        path: "/result/rich.html",
+        description: "숨만 쉬어도 돈이 들어오는 관상. 내 결과를 확인해보세요.",
+        image: "/assets/og-rich.svg"
+    },
+    middle: {
+        title: "미래 월급 테스트 결과: 안정형 관상",
+        path: "/result/middle.html",
+        description: "워라밸과 안정성을 갖춘 실속형 관상 결과입니다.",
+        image: "/assets/og-middle.svg"
+    },
+    growth: {
+        title: "미래 월급 테스트 결과: 성장형 관상",
+        path: "/result/growth.html",
+        description: "대기만성형 성장 관상. 앞으로 터질 타입입니다.",
+        image: "/assets/og-growth.svg"
+    },
+    default: {
+        title: "AI 미래 월급 테스트",
+        path: "/index.html",
+        description: "내 관상으로 보는 미래 월급, 지금 바로 확인하세요.",
+        image: "/assets/og-default.svg"
+    }
+};
 
 const richMessages = [
     '숨만 쉬어도 돈이 들어오는 관상',
@@ -22,7 +52,9 @@ const poorMessages = [
     '로또 당첨을 노려보세요'
 ];
 let model, maxPredictions;
-let webcamStream = null;
+let modelLoadPromise = null;
+const externalScriptPromises = new Map();
+let currentShareKey = "default";
 
 // DOM elements - 선언만 전역으로 하고, 할당은 DOMContentLoaded 안에서.
 let openFileDialogButton, imageUploadHidden, uploadedImage, checkSalaryButton, loadingMessage,
@@ -30,6 +62,9 @@ let openFileDialogButton, imageUploadHidden, uploadedImage, checkSalaryButton, l
 
 // --- Confetti Function ---
 function triggerConfetti() {
+    if (typeof confetti === 'undefined') {
+        return;
+    }
     const confettiEmojis = ['💸', '💰'];
     const defaults = {
         spread: 360,
@@ -70,6 +105,7 @@ function resetResults() {
 
 function resetTest() {
     resetResults();
+    currentShareKey = "default";
     if (uploadedImage) {
         uploadedImage.src = '#';
         uploadedImage.style.opacity = '0';
@@ -78,6 +114,26 @@ function resetTest() {
         }, 500);
     }
     if (checkSalaryButton) checkSalaryButton.disabled = true;
+}
+
+function getShareConfig() {
+    return SHARE_CONFIGS[currentShareKey] || SHARE_CONFIGS.default;
+}
+
+function resolveShareKey(predictedClass) {
+    switch (predictedClass) {
+        case "Class 1":
+        case "부자":
+            return "rich";
+        case "Class 2":
+        case "중산층":
+            return "middle";
+        case "Class 3":
+        case "거지":
+            return "growth";
+        default:
+            return "default";
+    }
 }
 
 
@@ -106,16 +162,26 @@ async function predict() {
         return;
     }
 
-    if (loadingMessage) loadingMessage.style.display = 'flex';
     resetResults();
+    if (loadingMessage) loadingMessage.style.display = 'flex';
     if (checkSalaryButton) checkSalaryButton.disabled = true;
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    let prediction;
+    try {
+        await initTeachableMachine();
+        await new Promise(resolve => setTimeout(resolve, 600));
+        prediction = await model.predict(uploadedImage);
+    } catch (error) {
+        console.error('Prediction failed:', error);
+        alert('AI 모델 로딩 또는 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        if (loadingMessage) loadingMessage.style.display = 'none';
+        if (checkSalaryButton && uploadedImage && uploadedImage.style.display !== 'none') {
+            checkSalaryButton.disabled = false;
+        }
+        return;
+    }
 
-    const prediction = await model.predict(uploadedImage);
-    
     if (loadingMessage) loadingMessage.style.display = 'none';
-    if (checkSalaryButton) checkSalaryButton.disabled = false;
 
     let resultMessage = "분석 결과가 명확하지 않습니다. 다른 사진으로 다시 시도해주세요!";
     let salaryAmountNum = 0;
@@ -149,6 +215,7 @@ async function predict() {
             resultMessage = "알 수 없는 결과입니다. 다시 시도해주세요!";
             salaryAmountNum = 0;
     }
+    currentShareKey = resolveShareKey(predictedClass);
 
     if (resultText) resultText.innerHTML = resultMessage;
     if (salaryAmountNum > 0) {
@@ -163,16 +230,21 @@ async function predict() {
         }
         if (resetButton) resetButton.style.display = 'block';
     }
+
+    if (checkSalaryButton && uploadedImage && uploadedImage.style.display !== 'none') {
+        checkSalaryButton.disabled = false;
+    }
 }
 
 // --- Web Share Button Logic ---
 async function handleWebShare() {
     if (navigator.share) {
         try {
+            const shareConfig = getShareConfig();
             const shareData = {
-                title: '미래 월급 테스트 결과',
+                title: shareConfig.title,
                 text: `${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
-                url: window.location.href
+                url: `${SITE_URL}${shareConfig.path}`
             };
             await navigator.share(shareData);
             console.log('Web Share successful');
@@ -188,13 +260,16 @@ async function handleWebShare() {
 // --- Kakao Share Function ---
 function shareKakao() {
     if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+        const shareConfig = getShareConfig();
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: '미래 월급 관상 테스트',
+                title: shareConfig.title,
                 description: `AI가 분석한 내 미래 월급은 ${resultText.textContent}${salaryAmountDisplay.textContent} 에서 나도 미래 월급을 확인해보세요!`,
+                imageUrl: `${SITE_URL}${shareConfig.image}`,
                 link: {
-                    webUrl: 'https://future-salary-test.pages.dev',
+                    mobileWebUrl: `${SITE_URL}${shareConfig.path}`,
+                    webUrl: `${SITE_URL}${shareConfig.path}`
                 },
             },
         });
@@ -205,15 +280,53 @@ function shareKakao() {
 }
 
 
-// Teachable Machine model init
+function loadExternalScript(src, globalCheck) {
+    if (typeof globalCheck === 'function' && globalCheck()) {
+        return Promise.resolve();
+    }
+    if (externalScriptPromises.has(src)) {
+        return externalScriptPromises.get(src);
+    }
+
+    const scriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+        document.head.appendChild(script);
+    });
+
+    externalScriptPromises.set(src, scriptPromise);
+    return scriptPromise;
+}
+
+// Teachable Machine model init (lazy loaded)
 async function initTeachableMachine() {
+    if (model) {
+        return;
+    }
+    if (modelLoadPromise) {
+        return modelLoadPromise;
+    }
+
+    modelLoadPromise = (async () => {
+        await loadExternalScript(TFJS_CDN, () => typeof tf !== 'undefined');
+        await loadExternalScript(TM_IMAGE_CDN, () => typeof tmImage !== 'undefined');
+
     const modelURL = URL + "model.json";
     const metadataURL = URL + "metadata.json";
 
-    model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-    
-    console.log("Teachable Machine 모델 로드 완료!");
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+        console.log("Teachable Machine 모델 로드 완료!");
+    })().catch((error) => {
+        modelLoadPromise = null;
+        throw error;
+    });
+
+    return modelLoadPromise;
 }
 
 
@@ -282,8 +395,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         uploadedImage.style.display = 'block';
                         setTimeout(() => uploadedImage.style.opacity = '1', 10);
                     }
-                    if (checkSalaryButton) checkSalaryButton.disabled = false;
+                    if (checkSalaryButton) checkSalaryButton.disabled = true;
                     resetResults();
+                    if (loadingMessage) loadingMessage.style.display = 'flex';
+                    initTeachableMachine()
+                        .then(() => {
+                            if (checkSalaryButton && uploadedImage && uploadedImage.style.display !== 'none') {
+                                checkSalaryButton.disabled = false;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Model preload failed:', error);
+                            alert('AI 모델 로딩에 실패했습니다. 네트워크 상태를 확인해주세요.');
+                        })
+                        .finally(() => {
+                            if (loadingMessage) loadingMessage.style.display = 'none';
+                        });
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -317,9 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize Teachable Machine model for index.html
-    // This should only run on index.html where the functionality is present.
-    // So, guard this call.
+    // Model is loaded lazily after image selection or first prediction request.
     if (document.getElementById('home-section')) { // 'home-section' is unique to index.html
-        initTeachableMachine();
+        if (checkSalaryButton) checkSalaryButton.disabled = true;
     }
 });

@@ -15,13 +15,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="keywords" content="무료 관상 테스트, AI 연봉 예측, 미래 월급, 관상학, 재물운, 운명, 셀카 관상, 얼굴 분석, 연봉 테스트">
     <meta property="og:title" content="AI 미래 월급 테스트">
     <meta property="og:description" content="내 관상으로 보는 미래 연봉은 얼마일까? 지금 바로 확인하세요!">
-    <meta property="og:image" content="">
+    <meta property="og:image" content="https://future-salary-test.pages.dev/assets/og-default.svg">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script> <!-- Confetti library -->
     <!-- Kakao SDK -->
-    <script src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KxjrFjzHa5TAoFQ6GbYTCAG0bjM55XohjjDT7tDDC01' crossorigin='anonymous'></script>
+    <script defer src='https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js' integrity='sha384-kDljxUXHaJ9xAb2AzRd59KxjrFjzHa5TAoFQ6GbYTCAG0bjM55XohjjDT7tDDC01' crossorigin='anonymous'></script>
     <link rel="stylesheet" href="style.css">
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8318272387440643"
@@ -58,7 +56,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <button id="open-file-dialog-button" class="mode-button" onclick="document.getElementById('image-upload-hidden').click()">📸 사진 찍기 / 업로드</button>
 
         <!-- Hidden input for file upload -->
-        <input type="file" id="image-upload-hidden" accept="image/*" style="display: none;">
+        <input type="file" id="image-upload-hidden" accept="image/*" capture="user" style="display: none;">
         
         <!-- Image preview -->
         <img id='uploaded-image' src='#' style='display:none; max-width:100%; max-height: 250px; border-radius: 10px; border: 2px dashed #ddd; object-fit: contain; margin-top: 15px;'>
