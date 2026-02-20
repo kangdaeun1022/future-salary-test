@@ -504,6 +504,71 @@ h1 {
 .mailto-link-container a:hover {
     text-decoration: underline;
 }
+.cross-link-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.finance-test-container {
+    max-width: 800px;
+    text-align: left;
+}
+
+.quiz-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quiz-question {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+}
+
+.quiz-question h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.05em;
+    color: #222;
+}
+
+.quiz-question label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+    color: #444;
+    cursor: pointer;
+}
+
+.quiz-question input[type="radio"] {
+    margin-right: 8px;
+}
+
+.finance-result-box {
+    width: 100%;
+    margin-top: 20px;
+    padding: 20px;
+    background: #eef6ff;
+    border: 1px solid #d5e7ff;
+    border-radius: 12px;
+}
+
+.finance-result-box h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.5em;
+    color: #0b4ea2;
+}
+
+.finance-result-tip {
+    margin-top: 8px;
+    font-weight: bold;
+    color: #1f4f82;
+}
+
 /* Blog List Styles */
 .blog-list-container {
     max-width: 800px;

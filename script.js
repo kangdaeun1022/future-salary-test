@@ -35,22 +35,54 @@ const richMessages = [
     '걸어 다니는 중소기업',
     '전생에 나라를 구함',
     '조물주 위에 건물주',
-    '재벌 3세의 기운이 느껴짐'
+    '재벌 3세의 기운이 느껴짐',
+    '통장 잔고가 꾸준히 우상향하는 타입',
+    '기회가 돈으로 바뀌는 감각형',
+    '돈복과 인복을 같이 타고난 스타일',
+    '큰판에서 승부 보는 스케일형',
+    '수입 파이프라인이 늘어나는 성장형 부자'
 ];
 const middleClassMessages = [
     '어딜 가나 환영받는 인재',
     '워라밸을 즐기는 능력자',
     '부장님 소리 듣는 관상',
     '실속 챙기는 알부자',
-    '안정적인 자산가'
+    '안정적인 자산가',
+    '꾸준함으로 자산을 만드는 현실형',
+    '리스크 관리가 좋은 밸런스형',
+    '지출 관리가 뛰어난 생활형 고수',
+    '복리의 힘을 믿는 장기전 강자',
+    '생활 만족도와 수입을 함께 잡는 타입'
 ];
 const poorMessages = [
     '티끌 모아 태산! 성실함이 무기',
     '대기만성형! 늦게 터집니다',
     '돈보다 명예를 좇는 예술가',
     '지금은 힘들어도 끝은 창대하리라',
-    '로또 당첨을 노려보세요'
+    '로또 당첨을 노려보세요',
+    '지금은 준비기, 다음 사이클이 중요합니다',
+    '작은 습관이 큰 차이를 만드는 성장형',
+    '현금흐름 점검만 해도 레벨업 가능',
+    '수입 다각화가 필요한 리부트형',
+    '지금의 고생이 나중에 자산이 되는 타입'
 ];
+const FINANCE_TEST_RESULTS = {
+    high: {
+        title: "공격 성장형 재테크 성향",
+        description: "수익 기회를 적극적으로 잡는 편입니다. 분산 투자와 손실 한도 규칙을 함께 가져가면 더 강해집니다.",
+        tip: "실천 팁: 월 투자 상한선과 손절 기준을 먼저 정하세요."
+    },
+    balanced: {
+        title: "균형 안정형 재테크 성향",
+        description: "위험과 안정의 균형 감각이 좋습니다. 장기 복리 전략과 비상자금 관리가 특히 잘 맞습니다.",
+        tip: "실천 팁: 자산 비중을 분기마다 한 번 리밸런싱하세요."
+    },
+    conservative: {
+        title: "안전 우선형 재테크 성향",
+        description: "리스크를 잘 통제하는 강점이 있습니다. 예적금 중심에서 ETF/적립식으로 천천히 확장하면 좋습니다.",
+        tip: "실천 팁: 월 1회 소액 자동투자로 시장 적응부터 시작하세요."
+    }
+};
 let model, maxPredictions;
 let modelLoadPromise = null;
 const externalScriptPromises = new Map();
@@ -138,6 +170,88 @@ function resolveShareKey(predictedClass) {
         default:
             return "default";
     }
+}
+
+function isHomePath(pathname) {
+    return pathname === '/' || pathname.endsWith('/index.html');
+}
+
+function injectCrossLinks() {
+    const pathname = window.location.pathname;
+    const container = document.querySelector('.container');
+    if (!container) {
+        return;
+    }
+    if (document.getElementById('auto-cross-links')) {
+        return;
+    }
+
+    const section = document.createElement('section');
+    section.id = 'auto-cross-links';
+    section.className = 'info-section';
+
+    if (pathname.includes('/blog/post-')) {
+        section.innerHTML = `
+            <h2>관련 테스트</h2>
+            <p>콘텐츠를 다 읽었다면 아래 테스트도 해보세요.</p>
+            <div class="cross-link-grid">
+                <a class="card-link" href="../index.html">AI 미래 월급 테스트</a>
+                <a class="card-link" href="../finance-test.html">재테크 성향 테스트</a>
+            </div>
+        `;
+    } else if (isHomePath(pathname) || pathname.endsWith('/finance-test.html')) {
+        section.innerHTML = `
+            <h2>추천 칼럼</h2>
+            <p>테스트와 함께 읽으면 더 재밌는 칼럼입니다.</p>
+            <div class="cross-link-grid">
+                <a class="card-link" href="blog/post-1.html">재물운의 과학 칼럼</a>
+                <a class="card-link" href="blog/post-3.html">성공하는 얼굴 특징 칼럼</a>
+                <a class="card-link" href="blog/post-6.html">코 관상과 재물운 칼럼</a>
+            </div>
+        `;
+    } else {
+        return;
+    }
+
+    container.appendChild(section);
+}
+
+function handleFinanceTestSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const requiredKeys = ['q1', 'q2', 'q3', 'q4', 'q5'];
+
+    if (!requiredKeys.every((key) => formData.get(key))) {
+        alert('모든 문항에 답변해 주세요.');
+        return;
+    }
+
+    const score = requiredKeys.reduce((sum, key) => sum + Number(formData.get(key)), 0);
+    let result = FINANCE_TEST_RESULTS.balanced;
+    if (score >= 21) {
+        result = FINANCE_TEST_RESULTS.high;
+    } else if (score <= 14) {
+        result = FINANCE_TEST_RESULTS.conservative;
+    }
+
+    const resultBox = document.getElementById('finance-result');
+    const resultTitle = document.getElementById('finance-result-title');
+    const resultText = document.getElementById('finance-result-text');
+    const resultTip = document.getElementById('finance-result-tip');
+
+    if (resultTitle) resultTitle.textContent = result.title;
+    if (resultText) resultText.textContent = result.description;
+    if (resultTip) resultTip.textContent = result.tip;
+    if (resultBox) resultBox.style.display = 'block';
+}
+
+function setupFinanceTest() {
+    const form = document.getElementById('finance-test-form');
+    if (!form) {
+        return;
+    }
+    form.addEventListener('submit', handleFinanceTestSubmit);
 }
 
 
@@ -471,4 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('home-section')) { // 'home-section' is unique to index.html
         if (checkSalaryButton) checkSalaryButton.disabled = true;
     }
+
+    setupFinanceTest();
+    injectCrossLinks();
 });
