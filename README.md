@@ -1,52 +1,45 @@
-# salary-test
+# Future Salary Test
 
-정적 웹 기반의 "미래 월급 테스트" 프로젝트입니다.
+`future-salary-test.pages.dev`에 배포된 정적 웹 프로젝트입니다.
 
-- 메인 테스트: AI 얼굴 분류 기반 월급 유형 테스트
-- 보조 테스트: 재테크 성향 테스트
-- 콘텐츠: 블로그형 칼럼 및 결과 페이지
-- 배포 형태: 정적 호스팅(Cloudflare Pages 등)
+배포 URL: https://future-salary-test.pages.dev
 
-## 실행 방법 (로컬)
-정적 파일 프로젝트라 빌드 없이 바로 미리보기 가능합니다.
+## Live Pages
+- 홈(월급 테스트): https://future-salary-test.pages.dev/
+- 재테크 테스트: https://future-salary-test.pages.dev/finance-test.html
+- 블로그 목록: https://future-salary-test.pages.dev/blog.html
+
+## Project Structure
+```text
+.
+├── index.html            # 메인 테스트
+├── finance-test.html     # 재테크 성향 테스트
+├── blog.html             # 블로그 목록
+├── blog/                 # 블로그 상세 글
+├── result/               # 결과 페이지(rich/middle/growth)
+├── assets/               # OG 이미지 등 정적 리소스
+├── style.css             # 공통 스타일
+├── script.js             # 테스트/공통 동작 스크립트
+├── sitemap.xml           # 검색엔진 사이트맵
+├── robots.txt            # 크롤러 정책
+└── _headers              # 배포 헤더 설정
+```
+
+## Run Locally
+빌드 없이 정적 서버로 바로 실행할 수 있습니다.
 
 ```bash
 python3 -m http.server 8000
 ```
 
-브라우저에서 `http://localhost:8000/index.html` 접속.
+접속: `http://localhost:8000/index.html`
 
-## 디렉토리 구조
+## Update Checklist
+1. 페이지 추가/삭제 시 `sitemap.xml` 업데이트
+2. 공유 메타 변경 시 각 페이지의 `og:*`와 `assets/og-*.svg` 확인
+3. 공통 링크 변경 시 `script.js`의 cross-link 로직 함께 점검
+4. 배포 전 로컬에서 메뉴/내부 링크/결과 페이지 이동 확인
 
-```text
-.
-├── index.html            # 메인 테스트 페이지
-├── finance-test.html     # 재테크 성향 테스트
-├── blog.html             # 블로그 목록
-├── blog/                 # 블로그 상세 글
-├── result/               # 테스트 결과 페이지
-├── assets/               # OG 이미지 등 정적 리소스
-├── style.css             # 공통 스타일
-├── script.js             # 공통 스크립트
-├── sitemap.xml           # 사이트맵
-├── robots.txt            # 크롤러 정책
-└── _headers              # 배포 헤더 설정
-```
-
-## 페이지 구성 메모
-
-- 루트의 `post-1.html` ~ `post-5.html`, `column.html`은 기존 콘텐츠 페이지입니다.
-- 현재 메인 사용자 동선은 `index.html`, `finance-test.html`, `blog.html`, `blog/*` 기준으로 구성됩니다.
-- URL 호환성 때문에 기존 페이지 파일은 유지하는 것을 권장합니다.
-
-## 운영 체크리스트
-
-1. 신규 콘텐츠 추가 시 `sitemap.xml`에 URL 반영
-2. 공유 썸네일 변경 시 `assets/og-*.svg`와 각 페이지 메타태그 확인
-3. 공통 링크/네비게이션 변경 시 `script.js`의 교차 링크 로직까지 함께 점검
-4. 배포 전 로컬 서버에서 메뉴/링크 깨짐 여부 확인
-
-## 정리 원칙
-
-- 정적 URL이 외부에 노출되었을 가능성이 있어 파일 이동/삭제보다 "호환 유지"를 우선합니다.
-- IDE 설정 파일은 버전관리에서 제외합니다.
+## Notes
+- 루트의 `post-1.html`~`post-5.html`, `column.html`은 레거시 페이지로 호환성 유지를 위해 보관 중입니다.
+- IDE 파일(`.idea/`)은 `.gitignore`로 관리됩니다.
